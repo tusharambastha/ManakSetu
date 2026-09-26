@@ -8,7 +8,7 @@ export function getApiBaseUrl() {
   if (typeof window !== 'undefined') {
     // If running on GitHub Pages (github.io), forward API requests to live backend
     if (window.location.hostname.endsWith('github.io')) {
-      return 'https://navigate-carl-passport-tampa.trycloudflare.com'
+      return 'https://programs-witch-resistance-second.trycloudflare.com'
     }
     // If the frontend is served on Vite dev server (port 5173), direct the browser
     // to FastAPI directly on port 8000 to bypass sandboxed Vite proxy connect restrictions.

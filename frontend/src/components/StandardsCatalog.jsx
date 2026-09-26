@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Search, Filter, BookOpen, ExternalLink, ChevronRight, Award, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { safeFetch } from '../utils/api'
 import { t } from '../utils/translations'
+import { getLocalStandards } from '../utils/localEngine'
 
 export default function StandardsCatalog({ onSelectStandard, language = 'en' }) {
   const [standards, setStandards] = useState([])
@@ -28,7 +29,10 @@ export default function StandardsCatalog({ onSelectStandard, language = 'en' }) 
         setLoading(false)
       })
       .catch((err) => {
-        console.error('Error fetching standards:', err)
+        console.warn('Backend unavailable, using local standards dataset:', err)
+        const local = getLocalStandards(searchQuery, sectorFilter, statusFilter, 100)
+        setStandards(local.items)
+        setTotal(local.total)
         setLoading(false)
       })
   }
