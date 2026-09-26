@@ -49,7 +49,7 @@ export default function Header({ activeTab, setActiveTab, systemStats, userRole,
           <img
             src={logoImg}
             alt="ManakSetu"
-            className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
+            className="h-14 sm:h-16 md:h-18 w-auto object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
           />
         </div>
 

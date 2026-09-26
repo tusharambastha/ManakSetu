@@ -433,7 +433,7 @@ export default function AuthPortal({ onLogin }) {
           <img
             src={logoImg}
             alt="ManakSetu"
-            className="h-20 w-auto object-contain drop-shadow-sm"
+            className="h-24 sm:h-28 md:h-32 w-auto object-contain drop-shadow-md"
           />
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1C1C1E] tracking-tight">

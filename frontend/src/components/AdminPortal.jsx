@@ -313,7 +313,7 @@ export default function AdminPortal({
               <img
                 src={logoImg}
                 alt="ManakSetu"
-                className="h-10 sm:h-11 w-auto object-contain rounded-lg group-hover:opacity-90 transition-opacity"
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain rounded-xl group-hover:opacity-90 transition-opacity drop-shadow-xs"
               />
 
               <div className="hidden xl:block border-l border-[#E5DDD1] dark:border-[#2E3F4F] pl-3 ml-0.5">
@@ -414,7 +414,7 @@ export default function AdminPortal({
           {/* Sidebar Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3DDD5] dark:border-[#2E3F4F]">
             <div className="flex items-center gap-2.5">
-              <img src={logoImg} alt="ManakSetu" className="h-8 w-auto object-contain rounded-md" />
+              <img src={logoImg} alt="ManakSetu" className="h-10 sm:h-11 w-auto object-contain rounded-lg shadow-2xs" />
               <div>
                 <span className="text-sm font-bold text-[#1B4965] dark:text-sky-300 block leading-tight">ManakSetu</span>
                 <span className="text-[10px] font-bold text-[#E05A00] uppercase tracking-wider">Admin Portal</span>
