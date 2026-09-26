@@ -1,0 +1,82 @@
+{
+  "tender_file": "demo_tenders/Sample_CPWD_Electrical_Cable_Tender.docx",
+  "parser_output": {
+    "section_isolated": true,
+    "total_chars": 1550,
+    "extracted_spec_preview": "Section IV: Technical Specifications and Schedule of Requirements\n4.1 Wiring Cables: Supply and laying of 1100V working voltage grade PVC insulated single-core and multi-core flexible copper conductor building wires with Flame Retardant Low Smoke (FRLS) insulation. Conductor purity must conform to electrolytic tough pitch copper.\n4.2 Distribution Switchgear: Miniature Circuit Breakers (MCB) of breaking capacity 10 kA, C-curve characteristics, for 16A and 32A lighting and power circuits. Sub-main boards must include 30mA residual current protection for shock prevention.\n4.3 Conduit System: Rigid plain non-metallic PVC conduits of heavy mechanical stress class for concealed wall and ceiling wiring.\n4.4 Plugs & Sockets: 6A and 16A modular 3-pin shuttered socket-outlets with copper alloy contacts.\nSection V: Commercial Terms and Payment Conditions\n5.1 Payment terms: 80% against delivery and physical verification, 20% on successful installation.\n5.2 Liquidated damages shall be applicable at 0.5% per week of delay up to a maximum of 10%."
+  },
+  "nlp_output": {
+    "original_input": "Section IV: Technical Specifications and Schedule of Requirements\n4.1 Wiring Cables: Supply and laying of 1100V working voltage grade PVC insulated single-core and multi-core flexible copper conductor building wires with Flame Retardant Low Smoke (FRLS) insulation. Conductor purity must conform to electrolytic tough pitch copper.\n4.2 Distribution Switchgear: Miniature Circuit Breakers (MCB) of breaking capacity 10 kA, C-curve characteristics, for 16A and 32A lighting and power circuits. Sub-main boards must include 30mA residual current protection for shock prevention.\n4.3 Conduit System: Rigid plain non-metallic PVC conduits of heavy mechanical stress class for concealed wall and ceiling wiring.\n4.4 Plugs & Sockets: 6A and 16A modular 3-pin shuttered socket-outlets with copper alloy contacts.\nSection V: Commercial Terms and Payment Conditions\n5.1 Payment terms: 80% against delivery and physical verification, 20% on successful installation.\n5.2 Liquidated damages shall be applicable at 0.5% per week of delay up to a maximum of 10%.",
+    "normalized_text": "Section IV: Technical Specifications and Schedule of Requirements 4.1 Wiring Cables: Supply and laying of 1100V working voltage grade PVC insulated single-core and multi-core flexible copper conductor building wires with Flame Retardant Low Smoke (FRLS) insulation. Conductor purity must conform to electrolytic tough pitch copper. 4.2 Distribution Switchgear: Miniature Circuit Breakers (MCB) of breaking capacity 10 kA, C-curve characteristics, for 16A and 32A lighting and power circuits. Sub-main boards must include 30mA residual current protection for shock prevention. 4.3 Conduit System: Rigid plain non-metallic PVC conduits of heavy mechanical stress class for concealed wall and ceiling wiring. 4.4 Plugs & Sockets: 6A and 16A modular 3-pin shuttered socket-outlets with copper alloy contacts. Section V: Commercial Terms and Payment Conditions 5.1 Payment terms: 80% against delivery and physical verification, 20% on successful installation. 5.2 Liquidated damages shall be applicable at 0.5% per week of delay up to a maximum of 10%.",
+    "was_multilingual": false,
+    "inferred_sector": "Electrical & Power",
+    "product_type": "XLPE Power Cables",
+    "technical_parameters": {
+      "voltage": [
+        "1100V"
+      ],
+      "current": [
+        "10 kA",
+        "16A",
+        "32A",
+        "6A"
+      ],
+      "material": [
+        "PVC",
+        "copper"
+      ],
+      "safety_property": [
+        "Flame Retardant",
+        "FRLS"
+      ]
+    },
+    "keywords": [
+      "Section",
+      "IV",
+      "Technical",
+      "Specifications",
+      "Schedule",
+      "Requirements",
+      "Wiring",
+      "Cables",
+      "laying",
+      "1100V",
+      "working",
+      "voltage",
+      "grade",
+      "PVC",
+      "insulated"
+    ],
+    "search_query": "XLPE Power Cables 1100V 10 kA 16A 32A 6A PVC copper Flame Retardant FRLS Section IV: Technical Specifications and Schedule of Requirements 4.1 Wiring Cables: Supply and laying of 1100V working voltage grade PVC insulated si",
+    "summary": "Procurement requirement for XLPE Power Cables in Electrical & Power sector."
+  },
+  "recommended_standards": [
+    {
+      "standard_no": "IS 694:2010",
+      "title": "Polyvinyl Chloride Insulated Unsheathed and Sheathed Cables/Cords with Rigid and Flexible Conductor for Working Voltages up to and Including 450/750 V",
+      "status": "active",
+      "qco_applicable": true,
+      "qco_verified": false,
+      "source_url": "https://law.resource.org/pub/in/bis/S02/is.694.2010.pdf",
+      "explanation": "Recommended because IS 694:2010 (Polyvinyl Chloride Insulated Unsheathed and Sheathed Cables/Cords with Rigid and Flexible Conductor for Working Voltages up to and Including 450/750 V) is the authoritative Indian Standard governing requirements in the Electrical & Power sector. Directly satisfies technical parameters: '1100v, pvc, copper, frls' as prescribed in its official scope (Covers requirements and test methods for single and multicore PVC insulated cables and flexible cords for electric power, lighting, internal wiring of domestic appliances, and control panels with rated voltages up to and including 1100 V (450/750 V AC)). Mandatory compliance: Requires BIS Product Certification under Electrical Wires, Cables, Appliances and Protection Devices and Accessories (Quality Control) Order, 2003 (Ministry of Commerce and Industry / DPIIT)."
+    },
+    {
+      "standard_no": "IS 1554 (Part 1):1988",
+      "title": "PVC Insulated (Heavy Duty) Electric Cables - Part 1: For Working Voltages up to and Including 1100 V",
+      "status": "active",
+      "qco_applicable": true,
+      "qco_verified": false,
+      "source_url": "https://law.resource.org/pub/in/bis/S02/is.1554.1.1988.pdf",
+      "explanation": "Recommended because IS 1554 (Part 1):1988 (PVC Insulated (Heavy Duty) Electric Cables - Part 1: For Working Voltages up to and Including 1100 V) is the authoritative Indian Standard governing requirements in the Electrical & Power sector. Directly satisfies technical parameters: '1100v, pvc' as prescribed in its official scope (Legacy specification for PVC heavy duty power cables up to 1100V, largely replaced in modern high-load and utility distribution tenders by XLPE cables under IS 7098 (Part 1)). Mandatory compliance: Requires BIS Product Certification under Cables (Quality Control) Order, 2020 (DPIIT, Ministry of Commerce and Industry)."
+    },
+    {
+      "standard_no": "IS 7098 (Part 1):1988",
+      "title": "Cross-linked Polyethylene Insulated Thermoplastic Sheathed Cables - Part 1: For Working Voltages up to and Including 1100 V",
+      "status": "active",
+      "qco_applicable": true,
+      "qco_verified": false,
+      "source_url": "https://law.resource.org/pub/in/bis/S02/is.7098.1.1988.pdf",
+      "explanation": "Recommended because IS 7098 (Part 1):1988 (Cross-linked Polyethylene Insulated Thermoplastic Sheathed Cables - Part 1: For Working Voltages up to and Including 1100 V) is the authoritative Indian Standard governing requirements in the Electrical & Power sector. Directly satisfies technical parameters: 'pvc' as prescribed in its official scope (Covers requirements and test methods for single, twin, three, four-core and multicore cross-linked polyethylene (XLPE) insulated and PVC sheathed armoured and unarmoured power and control cables for utility distribution up to 1100 V AC). Mandatory compliance: Requires BIS Product Certification under Cables (Quality Control) Order, 2020 (DPIIT, Ministry of Commerce and Industry)."
+    }
+  ]
+}

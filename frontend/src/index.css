@@ -1,0 +1,291 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    @apply bg-[#F6F1E7] text-[#1C1C1E] antialiased selection:bg-[#1B4965]/20 selection:text-[#1B4965];
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  p {
+    line-height: 1.65;
+  }
+
+  /* Tighter tracking for bold labels */
+  .font-bold, .font-extrabold, .font-black {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Card styles */
+.suraksha-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E3DDD5;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .suraksha-card {
+  background: #1E2A35;
+  border-color: #2E3F4F;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.suraksha-card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.suraksha-card-hover:hover {
+  transform: translateY(-2px);
+  border-color: #C8C0B5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+html.dark .suraksha-card-hover:hover {
+  border-color: #3E5060;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F2EFE9; }
+::-webkit-scrollbar-thumb { background: #C8C0B5; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #7A7A7A; }
+
+html.dark ::-webkit-scrollbar-track { background: #16212B; }
+html.dark ::-webkit-scrollbar-thumb { background: #2E3F4F; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #5A6A7A; }
+
+/* ==========================================================================
+   Comprehensive Dark Mode Palette & Overrides (when html has .dark class)
+   ========================================================================== */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0C131D !important;
+  color: #E2E8F0 !important;
+}
+
+/* Base surface / Card backgrounds */
+html.dark .bg-white,
+html.dark .bg-\[\#ffffff\],
+html.dark .bg-\[\#FFFFFF\] {
+  background-color: #16222F !important;
+}
+
+/* Secondary / nested / warm cream surfaces */
+html.dark .bg-\[\#F6F1E7\],
+html.dark .bg-\[\#FAF7F2\],
+html.dark .bg-\[\#FDFBF7\],
+html.dark .bg-\[\#F7F5F1\],
+html.dark .bg-\[\#FBF8F3\],
+html.dark .bg-\[\#F2EFE9\],
+html.dark .bg-\[\#EFE7DA\],
+html.dark .bg-\[\#F8FAFC\],
+html.dark .bg-slate-50,
+html.dark .bg-gray-50 {
+  background-color: #101923 !important;
+}
+
+/* Translucent surfaces */
+html.dark .bg-white\/95 {
+  background-color: rgba(22, 34, 47, 0.95) !important;
+}
+html.dark .bg-white\/90 {
+  background-color: rgba(22, 34, 47, 0.9) !important;
+}
+html.dark .bg-white\/80 {
+  background-color: rgba(22, 34, 47, 0.8) !important;
+}
+html.dark .bg-white\/70 {
+  background-color: rgba(22, 34, 47, 0.7) !important;
+}
+html.dark .bg-slate-50\/50 {
+  background-color: rgba(16, 25, 35, 0.5) !important;
+}
+
+/* Hover background states */
+html.dark .hover\:bg-\[\#F6F1E7\]:hover,
+html.dark .hover\:bg-\[\#FBF8F3\]:hover,
+html.dark .hover\:bg-\[\#F2EFE9\]:hover,
+html.dark .hover\:bg-\[\#EFE7DA\]:hover,
+html.dark .hover\:bg-\[\#FAF7F2\]:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-100:hover {
+  background-color: #1E2D3D !important;
+}
+
+/* Borders */
+html.dark .border-\[\#E5DDD1\],
+html.dark .border-\[\#E3DDD5\],
+html.dark .border-\[\#E2E8F0\],
+html.dark .border-\[\#C8BEAF\],
+html.dark .border-\[\#CBD5E1\],
+html.dark .border-\[\#EBE3D5\],
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300 {
+  border-color: #273849 !important;
+}
+
+html.dark .divide-\[\#E5DDD1\] > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-\[\#E3DDD5\] > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #273849 !important;
+}
+
+/* Primary Headings & Dark Text */
+html.dark .text-\[\#0F2942\],
+html.dark .text-\[\#1C1C1E\],
+html.dark .text-\[\#1E293B\],
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gov-950,
+html.dark .text-gov-900 {
+  color: #F8FAFC !important;
+}
+
+/* Accent Navy/Blue Text */
+html.dark .text-\[\#1B4965\],
+html.dark .text-gov-700,
+html.dark .text-gov-800 {
+  color: #5B9CC9 !important;
+}
+
+/* Secondary & Muted Text */
+html.dark .text-\[\#475569\],
+html.dark .text-\[\#4A4A4A\],
+html.dark .text-\[\#64748B\],
+html.dark .text-\[\#7A7A7A\],
+html.dark .text-\[\#9A9A9E\],
+html.dark .text-\[\#A0988E\],
+html.dark .text-slate-500,
+html.dark .text-slate-600,
+html.dark .text-gray-500,
+html.dark .text-gray-600 {
+  color: #94A3B8 !important;
+}
+
+/* Form inputs, textareas, selects */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark textarea,
+html.dark select {
+  background-color: #101923 !important;
+  color: #F8FAFC !important;
+  border-color: #273849 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Badges & Alert boxes in dark mode */
+html.dark .bg-amber-50,
+html.dark .bg-yellow-50,
+html.dark .bg-\[\#FFFBEB\],
+html.dark .bg-\[\#FDF3E3\] {
+  background-color: rgba(245, 158, 11, 0.14) !important;
+}
+html.dark .border-amber-200,
+html.dark .border-amber-300,
+html.dark .border-\[\#FDE68A\] {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+html.dark .text-amber-600,
+html.dark .text-amber-700,
+html.dark .text-amber-800,
+html.dark .text-amber-900,
+html.dark .text-\[\#92400E\],
+html.dark .text-\[\#78350F\],
+html.dark .text-\[\#D4882A\] {
+  color: #FCD34D !important;
+}
+
+html.dark .bg-rose-50,
+html.dark .bg-red-50,
+html.dark .bg-\[\#FEF2F2\] {
+  background-color: rgba(244, 63, 94, 0.14) !important;
+}
+html.dark .border-rose-200,
+html.dark .border-rose-300,
+html.dark .border-red-200 {
+  border-color: rgba(244, 63, 94, 0.35) !important;
+}
+html.dark .text-rose-600,
+html.dark .text-rose-700,
+html.dark .text-rose-800,
+html.dark .text-red-600,
+html.dark .text-red-700 {
+  color: #FDA4AF !important;
+}
+
+html.dark .bg-emerald-50,
+html.dark .bg-green-50,
+html.dark .bg-\[\#E6F4EC\],
+html.dark .bg-\[\#ECFDF5\] {
+  background-color: rgba(16, 185, 129, 0.14) !important;
+}
+html.dark .border-emerald-200,
+html.dark .border-emerald-300,
+html.dark .border-green-200 {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+html.dark .text-emerald-500,
+html.dark .text-emerald-600,
+html.dark .text-emerald-700,
+html.dark .text-green-600,
+html.dark .text-green-700 {
+  color: #6EE7B7 !important;
+}
+
+html.dark .bg-blue-50,
+html.dark .bg-\[\#EBF4FA\],
+html.dark .bg-gov-50,
+html.dark .bg-sky-50 {
+  background-color: rgba(27, 73, 101, 0.3) !important;
+}
+html.dark .border-blue-200,
+html.dark .border-blue-300,
+html.dark .border-gov-200 {
+  border-color: rgba(91, 156, 201, 0.35) !important;
+}
+html.dark .text-blue-500,
+html.dark .text-blue-600,
+html.dark .text-blue-700,
+html.dark .text-gov-600 {
+  color: #93C5FD !important;
+}
+
+/* Sidebar smooth transition */
+aside {
+  will-change: transform;
+}
+
+/* Focus-visible ring for accessibility */
+:focus-visible {
+  outline: 2px solid #1B4965;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+

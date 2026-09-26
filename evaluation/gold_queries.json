@@ -1,0 +1,402 @@
+[
+  {
+    "id": "Q001",
+    "category": "helmets",
+    "query": "Supply of industrial safety helmets for construction workers with 440V electrical insulation and harness",
+    "expected_standards": ["IS 2925:1984"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 2925 covers industrial safety helmets; covered by Helmet QCO S.O. 4649(E)."
+  },
+  {
+    "id": "Q002",
+    "category": "helmets",
+    "query": "Non-metal protective helmets for civil defence and fire fighting personnel",
+    "expected_standards": ["IS 2745:1983"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 2745 non-metal helmets for firemen & civil defence under S.O. 4649(E)."
+  },
+  {
+    "id": "Q003",
+    "category": "helmets",
+    "query": "Non-metal protective helmets specification for state police force riot control",
+    "expected_standards": ["IS 9562:1980"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 9562 non-metal helmets for police force under S.O. 4649(E)."
+  },
+  {
+    "id": "Q004",
+    "category": "helmets",
+    "query": "Structural fire fighting protective helmets conforming to latest BIS requirements",
+    "expected_standards": ["IS 16890:2018"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 16890 covers firefighter helmets."
+  },
+  {
+    "id": "Q005",
+    "category": "electrical cables",
+    "query": "PVC insulated copper conductor single core flexible wires rated up to 1100V for internal electrification",
+    "expected_standards": ["IS 694:2010"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 694 covers PVC insulated unsheathed and sheathed cables up to 1100V."
+  },
+  {
+    "id": "Q006",
+    "category": "electrical cables",
+    "query": "Heavy duty armored PVC insulated copper power cables for working voltage up to 1100 V",
+    "expected_standards": ["IS 1554 (Part 1):1988"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 1554 (Part 1) covers PVC insulated heavy duty power cables up to 1100V."
+  },
+  {
+    "id": "Q007",
+    "category": "electrical cables",
+    "query": "XLPE insulated armored aluminium power cables for working voltages up to 1.1 kV",
+    "expected_standards": ["IS 7098 (Part 1):1988"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 7098 (Part 1) covers cross-linked polyethylene cables up to 1100V."
+  },
+  {
+    "id": "Q008",
+    "category": "electrical cables",
+    "query": "HT cross-linked polyethylene XLPE insulated power cables for voltages from 3.3 kV up to 33 kV",
+    "expected_standards": ["IS 7098 (Part 2):2011"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 7098 (Part 2) covers XLPE cables 3.3 kV to 33 kV."
+  },
+  {
+    "id": "Q009",
+    "category": "cement",
+    "query": "Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 for structural concrete works",
+    "expected_standards": ["IS 269:2015", "IS 12269:2013"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 12269 was superseded by IS 269:2015 which unifies 33, 43, 53 grade OPC."
+  },
+  {
+    "id": "Q010",
+    "category": "cement",
+    "query": "Ordinary Portland Cement 43 Grade for general civil construction works",
+    "expected_standards": ["IS 269:2015", "IS 8112:2013"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 8112 superseded by IS 269:2015."
+  },
+  {
+    "id": "Q011",
+    "category": "cement",
+    "query": "Portland Pozzolana Cement PPC fly ash based for mass concrete foundation casting",
+    "expected_standards": ["IS 1489 (Part 1):2015"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 1489 (Part 1) covers fly ash based PPC."
+  },
+  {
+    "id": "Q012",
+    "category": "cement",
+    "query": "Active specification for Ordinary Portland Cement all grades 33 43 53 unified standard",
+    "expected_standards": ["IS 269:2015"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 269:2015 6th revision unifies OPC 33, 43, and 53 grades."
+  },
+  {
+    "id": "Q013",
+    "category": "steel",
+    "query": "High strength deformed TMT steel reinforcement bars grade Fe 500D for RCC structures",
+    "expected_standards": ["IS 1786:2008"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 1786 covers high strength deformed steel bars and wires for concrete reinforcement."
+  },
+  {
+    "id": "Q014",
+    "category": "steel",
+    "query": "Hot rolled medium and high tensile structural steel plates and sections grade E250 for bridge fabrication",
+    "expected_standards": ["IS 2062:2011"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 2062 covers hot rolled structural steel."
+  },
+  {
+    "id": "Q015",
+    "category": "PPE",
+    "query": "Industrial safety footwear leather shoes with 200J impact resistant steel toe cap",
+    "expected_standards": ["IS 15298 (Part 2):2016"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 15298 (Part 2) covers safety footwear with 200J toe cap."
+  },
+  {
+    "id": "Q016",
+    "category": "PPE",
+    "query": "Leather safety boots and shoes for miners working in underground mine shafts",
+    "expected_standards": ["IS 1989 (Part 1):1986"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 1989 (Part 1) covers leather safety boots for miners."
+  },
+  {
+    "id": "Q017",
+    "category": "PPE",
+    "query": "Full body safety harness and fall arrest equipment for work at height",
+    "expected_standards": ["IS 3521 (Part 1):1999"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 3521 (Part 1) covers industrial safety belts and harnesses."
+  },
+  {
+    "id": "Q018",
+    "category": "PPE",
+    "query": "Industrial protective eye protectors goggles for welding and chemical splash protection",
+    "expected_standards": ["IS 5983:1980"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 5983 covers eye protectors."
+  },
+  {
+    "id": "Q019",
+    "category": "PPE",
+    "query": "Respiratory protective devices filtering half masks against particulates class FFP2",
+    "expected_standards": ["IS 9473:2002"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 9473 covers filtering half masks against particles."
+  },
+  {
+    "id": "Q020",
+    "category": "PPE",
+    "query": "High visibility warning clothes safety reflective jackets for highway maintenance staff",
+    "expected_standards": ["IS 15809:2017"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 15809 covers high visibility warning clothes."
+  },
+  {
+    "id": "Q021",
+    "category": "construction materials",
+    "query": "Plain and reinforced concrete structural design code of practice for building works",
+    "expected_standards": ["IS 456:2000"],
+    "expected_qco": false,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 456 is a Code of Practice (no mandatory QCO product certification)."
+  },
+  {
+    "id": "Q022",
+    "category": "construction materials",
+    "query": "Coarse and fine aggregates from natural sources for use in concrete production",
+    "expected_standards": ["IS 383:2016"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 383 covers coarse and fine aggregates."
+  },
+  {
+    "id": "Q023",
+    "category": "construction materials",
+    "query": "Ready-mixed concrete RMC supply and quality control code of practice",
+    "expected_standards": ["IS 4926:2003"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 4926 covers ready-mixed concrete."
+  },
+  {
+    "id": "Q024",
+    "category": "construction materials",
+    "query": "Precast reinforced concrete pipes NP3 class for highway drainage culverts",
+    "expected_standards": ["IS 458:2003"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 458 covers precast concrete pipes with and without reinforcement."
+  },
+  {
+    "id": "Q025",
+    "category": "construction materials",
+    "query": "Unplasticized polyvinyl chloride uPVC pipes for potable water supply distribution systems",
+    "expected_standards": ["IS 4985:2000"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 4985 covers uPVC pipes for potable water."
+  },
+  {
+    "id": "Q026",
+    "category": "construction materials",
+    "query": "High density polyethylene HDPE pipes PE 100 grade for water supply pipelines",
+    "expected_standards": ["IS 4984:2016"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 4984 covers HDPE pipes for water supply."
+  },
+  {
+    "id": "Q027",
+    "category": "construction materials",
+    "query": "Centrifugally cast ductile iron DI pipes class K9 for underground water mains",
+    "expected_standards": ["IS 8329:2000"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 8329 covers ductile iron pipes."
+  },
+  {
+    "id": "Q028",
+    "category": "electrical equipment",
+    "query": "Miniature circuit breakers MCB 10kA breaking capacity for household electrical protection",
+    "expected_standards": ["IS/IEC 60898-1:2015"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS/IEC 60898-1 covers circuit-breakers for overcurrent protection in households."
+  },
+  {
+    "id": "Q029",
+    "category": "electrical equipment",
+    "query": "Residual current operated circuit breakers RCCB for protection against electric shock",
+    "expected_standards": ["IS 12640 (Part 1):2016"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 12640 (Part 1) covers residual current operated circuit-breakers without integral overcurrent protection (RCCBs)."
+  },
+  {
+    "id": "Q030",
+    "category": "electrical equipment",
+    "query": "Outdoor type oil immersed three phase distribution transformers up to 2500 kVA",
+    "expected_standards": ["IS 1180 (Part 1):2014"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "en",
+    "notes": "IS 1180 (Part 1) covers outdoor distribution transformers."
+  },
+  {
+    "id": "Q031",
+    "category": "Hindi/Hinglish",
+    "query": "helmet ke liye kaunsa IS standard applicable hai?",
+    "expected_standards": ["IS 2925:1984"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for industrial safety helmets."
+  },
+  {
+    "id": "Q032",
+    "category": "Hindi/Hinglish",
+    "query": "electrical cable ke liye BIS standard batao",
+    "expected_standards": ["IS 694:2010", "IS 1554 (Part 1):1988"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for electrical building cables."
+  },
+  {
+    "id": "Q033",
+    "category": "Hindi/Hinglish",
+    "query": "cement ke tender mein kaunsa Indian Standard check karna chahiye?",
+    "expected_standards": ["IS 269:2015"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for cement standards in tender."
+  },
+  {
+    "id": "Q034",
+    "category": "Hindi/Hinglish",
+    "query": "construction mein sariya Fe 500D ke liye kaunsa IS code lagega?",
+    "expected_standards": ["IS 1786:2008"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for TMT rebar Fe 500D."
+  },
+  {
+    "id": "Q035",
+    "category": "Hindi/Hinglish",
+    "query": "factory safety shoes steel toe ke liye mandatory BIS standard",
+    "expected_standards": ["IS 15298 (Part 2):2016"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for steel toe safety footwear."
+  },
+  {
+    "id": "Q036",
+    "category": "Hindi/Hinglish",
+    "query": "paani ke supply ke liye uPVC pipe ka standard code kya hai?",
+    "expected_standards": ["IS 4985:2000"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for potable water uPVC pipe."
+  },
+  {
+    "id": "Q037",
+    "category": "Hindi/Hinglish",
+    "query": "ghar ke distribution board ke liye MCB switchgear ka IS standard",
+    "expected_standards": ["IS/IEC 60898-1:2015"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for household MCB circuit breakers."
+  },
+  {
+    "id": "Q038",
+    "category": "Hindi/Hinglish",
+    "query": "substation aur building ke earthing grounding ka code of practice",
+    "expected_standards": ["IS 3043:2018"],
+    "expected_qco": false,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for electrical earthing code of practice (no QCO)."
+  },
+  {
+    "id": "Q039",
+    "category": "Hindi/Hinglish",
+    "query": "building concrete RCC design ke liye kaunsa code of practice use hota hai?",
+    "expected_standards": ["IS 456:2000"],
+    "expected_qco": false,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for reinforced concrete design (IS 456, Code of Practice)."
+  },
+  {
+    "id": "Q040",
+    "category": "Hindi/Hinglish",
+    "query": "bijli transformer distribution 11kV oil immersed ka BIS standard",
+    "expected_standards": ["IS 1180 (Part 1):2014"],
+    "expected_qco": true,
+    "expected_status": "active",
+    "language": "hi_en",
+    "notes": "Hinglish query for outdoor oil immersed distribution transformers."
+  }
+]
