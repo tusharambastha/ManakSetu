@@ -16,6 +16,7 @@ import {
   Settings,
   X
 } from 'lucide-react'
+import logoImg from '../assets/manaksetu-logo.jpg'
 
 // Verified government departments & ministries list
 const GOV_DEPARTMENTS = [
@@ -430,7 +431,7 @@ export default function AuthPortal({ onLogin }) {
         {/* Logo + Heading */}
         <div className="flex flex-col items-center mb-5 space-y-2">
           <img
-            src="/manaksetu-logo.jpg"
+            src={logoImg}
             alt="ManakSetu"
             className="h-20 w-auto object-contain drop-shadow-sm"
           />

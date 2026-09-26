@@ -8,6 +8,7 @@ import {
   Home,
   ChevronDown
 } from 'lucide-react'
+import logoImg from '../assets/manaksetu-logo.jpg'
 
 export default function Header({ activeTab, setActiveTab, systemStats, userRole, onOpenLogin }) {
   const isOfficer = userRole === 'officer'
@@ -46,7 +47,7 @@ export default function Header({ activeTab, setActiveTab, systemStats, userRole,
           onClick={() => setActiveTab('landing')}
         >
           <img
-            src="/manaksetu-logo.jpg"
+            src={logoImg}
             alt="ManakSetu"
             className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
           />

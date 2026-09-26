@@ -28,7 +28,8 @@ export async function safeFetch(url, options = {}) {
     res = await fetch(targetUrl, options)
   } catch (netErr) {
     // If connection to port 8000 failed and we used baseUrl, attempt fallback to relative URL
-    if (baseUrl && targetUrl.startsWith(baseUrl)) {
+    // only if NOT hosted on github.io (where relative API endpoints don't exist)
+    if (baseUrl && targetUrl.startsWith(baseUrl) && !window.location.hostname.endsWith('github.io')) {
       try {
         res = await fetch(url, options)
       } catch (fallbackErr) {

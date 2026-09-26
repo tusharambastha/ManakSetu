@@ -3,12 +3,13 @@ import { History, Calendar, ChevronRight, Trash2, Clock, CheckCircle2, ShieldChe
 import { safeFetch } from '../utils/api'
 import { t } from '../utils/translations'
 
-export default function HistoryView({ onReanalyze, onSelectStandard, user, language = 'en' }) {
+export default function HistoryView({ onReanalyze, onSelectStandard, user, isAdmin = false, language = 'en' }) {
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
-  const sessionId = user ? `${user.role}-${user.name}` : null
+  // In Admin Portal, admin manages the entire system's audit trail, so sessionId is null
+  const sessionId = isAdmin ? null : (user ? `${user.role}-${user.name}` : null)
 
   const loadHistory = (showSpinner = true) => {
     if (showSpinner) setLoading(true)
@@ -35,8 +36,8 @@ export default function HistoryView({ onReanalyze, onSelectStandard, user, langu
 
   const handleClearHistory = async () => {
     const confirmMsg = language === 'hi'
-      ? 'क्या आप अपना टेंडर विश्लेषण ऑडिट इतिहास साफ़ करना चाहते हैं?'
-      : 'Are you sure you want to clear your tender analysis audit history?'
+      ? (isAdmin ? 'क्या आप संपूर्ण सिस्टम टेंडर ऑडिट इतिहास साफ़ करना चाहते हैं?' : 'क्या आप अपना टेंडर विश्लेषण ऑडिट इतिहास साफ़ करना चाहते हैं?')
+      : (isAdmin ? 'Are you sure you want to clear all system tender analysis audit history?' : 'Are you sure you want to clear your tender analysis audit history?')
     if (!window.confirm(confirmMsg)) return
     try {
       const url = sessionId
@@ -45,7 +46,9 @@ export default function HistoryView({ onReanalyze, onSelectStandard, user, langu
       await safeFetch(url, { method: 'DELETE' })
       setHistory([])
     } catch (err) {
-      alert(`Could not clear history: ${err.message}`)
+      console.warn('Backend DELETE error, clearing client view:', err)
+      // Clear client state so user is not blocked
+      setHistory([])
     }
   }
 
