@@ -309,7 +309,7 @@ function ProfileModal({ user, onClose }) {
               {initials}
             </div>
             <div className="text-center">
-              <p className="font-bold text-[#1C1C1E] dark:text-white text-sm">{user?.name || 'Ramesh Sharma'}</p>
+              <p className="font-bold text-[#1C1C1E] dark:text-white text-sm">{user?.name || 'Registered Officer'}</p>
               <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-[#1B4965]/10 dark:bg-[#1B4965]/30 text-[#1B4965] dark:text-[#5B9CC9] text-[11px] font-bold">
                 {user?.role === 'officer' ? 'Procurement Officer' : 'BIS Admin'}
               </span>
@@ -319,9 +319,9 @@ function ProfileModal({ user, onClose }) {
           {/* Info rows */}
           <div className="space-y-2 text-xs">
             {[
-              { label: 'Full Name', value: user?.name || 'Ramesh Sharma' },
+              { label: 'Full Name', value: user?.name || 'Registered Officer' },
               { label: 'Role', value: user?.role === 'officer' ? 'Procurement Officer' : 'BIS Admin' },
-              { label: 'Organization', value: user?.department || 'CPWD / GeM Procurement Division' },
+              { label: 'Organization', value: user?.department || 'Public Procurement Division' },
               { label: 'Portal Access', value: user?.role === 'officer' ? 'Officer Portal — Tender Engine' : 'Admin Portal — Standards Management' },
               { label: 'Email', value: user?.email || '—' },
             ].map(({ label, value }) => (
@@ -426,6 +426,10 @@ export default function OfficerPortal({
   // Dark Mode state
   const [dark, setDark] = useState(getInitialDark)
   const [reanalyzeQuery, setReanalyzeQuery] = useState('')
+
+  const officerInitials = user?.name
+    ? user.name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
+    : 'PO'
 
   // ── Organization-specific benchmark scenarios ──────────────────────────────
   // Pre-seeded from local fallback immediately so cards render without delay.
@@ -628,14 +632,14 @@ export default function OfficerPortal({
                 className="flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 bg-white dark:bg-[#1E2A35] border border-[#E5DDD1] dark:border-[#2E3F4F] rounded-xl shadow-2xs hover:bg-[#F6F1E7] dark:hover:bg-[#2E3F4F] text-[#0F2942] dark:text-[#E2E8F0] transition-colors max-w-[190px] sm:max-w-[230px] cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-[#0F2942] dark:bg-[#1B4965] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                  PO
+                  {officerInitials}
                 </div>
                 <div className="text-left hidden sm:block min-w-0">
                   <div className="font-bold text-[#0F2942] dark:text-white text-xs leading-tight truncate">
-                    {user?.name || 'Ramesh Sharma'}
+                    {user?.name || 'Registered Officer'}
                   </div>
                   <div className="text-[11px] text-[#64748B] dark:text-[#9A9A9E] leading-tight truncate">
-                    {user?.department || 'CPWD / GeM Division'}
+                    {user?.department || 'Public Procurement Division'}
                   </div>
                 </div>
                 <ChevronDown

@@ -7,8 +7,14 @@ import { safeFetch } from './utils/api'
 import { analyzeLocally, DEFAULT_DEMO_QUERIES, DEFAULT_SYSTEM_STATS } from './utils/localEngine'
 
 export default function App() {
-  // Website khulne par sabse pehle register/login portal aayega
-  const [currentUser, setCurrentUser] = useState(null)
+  // Website khulne par active session check hoga, warna register/login portal aayega
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const active = localStorage.getItem('manaksetu_active_user')
+      if (active) return JSON.parse(active)
+    } catch (_) {}
+    return null
+  })
   const [loading, setLoading] = useState(false)
   const [analysisResults, setAnalysisResults] = useState(null)
   const [selectedStandardNo, setSelectedStandardNo] = useState(null)
@@ -93,6 +99,9 @@ export default function App() {
     return (
       <AuthPortal
         onLogin={(userData) => {
+          try {
+            localStorage.setItem('manaksetu_active_user', JSON.stringify(userData))
+          } catch (_) {}
           setCurrentUser(userData)
         }}
       />
@@ -106,6 +115,9 @@ export default function App() {
         <OfficerPortal
           user={currentUser}
           onLogout={() => {
+            try {
+              localStorage.removeItem('manaksetu_active_user')
+            } catch (_) {}
             setCurrentUser(null)
             setAnalysisResults(null)
           }}
@@ -120,6 +132,9 @@ export default function App() {
         <AdminPortal
           user={currentUser}
           onLogout={() => {
+            try {
+              localStorage.removeItem('manaksetu_active_user')
+            } catch (_) {}
             setCurrentUser(null)
           }}
           systemStats={systemStats}

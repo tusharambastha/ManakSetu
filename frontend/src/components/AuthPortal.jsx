@@ -35,8 +35,12 @@ const GOV_DEPARTMENTS = [
   'State Public Works Department (State PWD)'
 ]
 
+// Storage keys for persistent registered accounts and active session
+export const USERS_STORAGE_KEY = 'manaksetu_registered_users'
+export const CURRENT_USER_KEY = 'manaksetu_active_user'
+
 // Known verified demo officers & admins
-const REGISTERED_ACCOUNTS = [
+export const REGISTERED_ACCOUNTS = [
   {
     email: 'r.sharma@cpwd.gov.in',
     name: 'Ramesh Sharma',
@@ -62,6 +66,96 @@ const REGISTERED_ACCOUNTS = [
     role: 'officer'
   }
 ]
+
+export function getStoredUsers() {
+  try {
+    const raw = localStorage.getItem(USERS_STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch (_) {}
+  return []
+}
+
+export function saveUserToStorage(user) {
+  try {
+    const users = getStoredUsers()
+    const cleanEmail = (user.email || '').trim().toLowerCase()
+    const existingIndex = users.findIndex(u => (u.email || '').trim().toLowerCase() === cleanEmail)
+    if (existingIndex >= 0) {
+      users[existingIndex] = { ...users[existingIndex], ...user }
+    } else {
+      users.push(user)
+    }
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+  } catch (_) {}
+}
+
+export function findUserAccount(email) {
+  const clean = (email || '').trim().toLowerCase()
+  if (!clean) return null
+  const stored = getStoredUsers().find(u => (u.email || '').trim().toLowerCase() === clean)
+  if (stored) return stored
+  const preset = REGISTERED_ACCOUNTS.find(u => (u.email || '').trim().toLowerCase() === clean)
+  if (preset) return preset
+  return null
+}
+
+export function inferUserFromEmail(email) {
+  const clean = (email || '').trim().toLowerCase()
+  const parts = clean.split('@')
+  const userPart = parts[0] || 'official'
+  const domain = parts[1] || ''
+
+  // Humanize name: e.g. "tushar.ambastha" -> "Tushar Ambastha"
+  const derivedName = userPart
+    .replace(/[._-]+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ') || 'Registered Official'
+
+  let department = 'Central Public Works Department (CPWD)'
+  let role = 'officer'
+
+  if (domain.includes('bhel') || clean.includes('bhel')) {
+    department = 'Bharat Heavy Electricals Limited (BHEL)'
+  } else if (domain.includes('sail') || clean.includes('sail')) {
+    department = 'Steel Authority of India Limited (SAIL)'
+  } else if (domain.includes('ntpc') || clean.includes('ntpc')) {
+    department = 'National Thermal Power Corporation (NTPC)'
+  } else if (domain.includes('rdso') || domain.includes('railnet') || clean.includes('railway') || clean.includes('train')) {
+    department = 'Ministry of Railways / Indian Railways (RDSO)'
+  } else if (domain.includes('cpwd') || clean.includes('cpwd')) {
+    department = 'Central Public Works Department (CPWD)'
+  } else if (domain.includes('bis') || clean.includes('bis')) {
+    department = 'Bureau of Indian Standards (BIS)'
+    role = 'admin'
+  } else if (domain.includes('gem') || clean.includes('gem')) {
+    department = 'Government e-Marketplace (GeM)'
+  } else if (domain.includes('mes') || domain.includes('dgqa') || clean.includes('defence')) {
+    department = 'Ministry of Defence (DGQA / MES)'
+  } else if (domain.includes('dpiit') || clean.includes('dpiit') || clean.includes('commerce')) {
+    department = 'Ministry of Commerce and Industry (DPIIT)'
+  } else if (domain.includes('cea') || clean.includes('power')) {
+    department = 'Ministry of Power / Central Electricity Authority (CEA)'
+  } else if (domain.includes('mohua') || clean.includes('housing') || clean.includes('urban') || clean.includes('pmay')) {
+    department = 'Ministry of Housing and Urban Affairs (MoHUA)'
+  } else if (domain.includes('nhai') || domain.includes('morth') || clean.includes('highway') || clean.includes('road')) {
+    department = 'Ministry of Road Transport and Highways (MoRTH / NHAI)'
+  } else if (clean.includes('pwd')) {
+    department = 'State Public Works Department (State PWD)'
+  }
+
+  return {
+    name: derivedName,
+    email: clean,
+    department,
+    role
+  }
+}
 
 export default function AuthPortal({ onLogin }) {
   const [authMode, setAuthMode] = useState('login') // 'login' or 'register'
@@ -261,10 +355,13 @@ export default function AuthPortal({ onLogin }) {
     e.preventDefault()
     setLoginError('')
 
-    if (!loginEmail.trim()) {
+    const cleanEmail = loginEmail.trim().toLowerCase()
+    if (!cleanEmail) {
       setLoginError('Please enter your registered email address.')
       return
     }
+
+    const found = findUserAccount(cleanEmail)
 
     if (loginOtpMode) {
       if (loginOtp.trim() !== generatedOtp && loginOtp.trim() !== '7492' && loginOtp.trim() !== '1234') {
@@ -276,20 +373,39 @@ export default function AuthPortal({ onLogin }) {
         setLoginError('Please enter your password.')
         return
       }
+      // If user previously registered with a password, verify it
+      if (found && found.password && found.password !== loginPassword.trim()) {
+        setLoginError('Alert: Incorrect password. Please enter the password you registered with.')
+        return
+      }
     }
 
-    const found = REGISTERED_ACCOUNTS.find(
-      (a) => a.email.toLowerCase() === loginEmail.trim().toLowerCase()
-    )
+    let finalUser = null
+    if (found) {
+      finalUser = {
+        name: found.name,
+        email: found.email,
+        department: found.department,
+        role: found.role
+      }
+    } else {
+      // If not yet saved in this browser, deduce organization and name from email
+      const inferred = inferUserFromEmail(loginEmail)
+      finalUser = {
+        name: inferred.name,
+        email: loginEmail.trim(),
+        department: inferred.department,
+        role: inferred.role,
+        password: loginPassword.trim()
+      }
+      saveUserToStorage(finalUser)
+    }
 
-    const isAdmin = found ? found.role === 'admin' : (loginEmail.includes('bis') || loginEmail.includes('admin'))
+    try {
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(finalUser))
+    } catch (_) {}
 
-    onLogin({
-      name: found ? found.name : (isAdmin ? 'Dr. Ananya Verma' : 'Ramesh Sharma'),
-      email: loginEmail.trim(),
-      department: found ? found.department : (isAdmin ? 'Bureau of Indian Standards (BIS)' : 'Central Public Works Department (CPWD)'),
-      role: isAdmin ? 'admin' : 'officer'
-    })
+    onLogin(finalUser)
   }
 
   const handleSendLoginOtp = async () => {
@@ -370,12 +486,23 @@ export default function AuthPortal({ onLogin }) {
       return
     }
 
-    onLogin({
+    const newUserData = {
       name: regFullName.trim() || 'Registered Official',
       email: regEmail.trim(),
       department: regDepartment,
-      role: regRole
-    })
+      role: regRole,
+      password: regPassword
+    }
+
+    // Persist registered account to localStorage
+    saveUserToStorage(newUserData)
+
+    // Save as active session
+    try {
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUserData))
+    } catch (_) {}
+
+    onLogin(newUserData)
   }
 
   const handleSaveEmailConfig = (e) => {
@@ -391,21 +518,25 @@ export default function AuthPortal({ onLogin }) {
   }
 
   const handleQuickDemoLogin = (role) => {
-    if (role === 'officer') {
-      onLogin({
-        name: 'Ramesh Sharma',
-        email: 'r.sharma@cpwd.gov.in',
-        department: 'CPWD / GeM Procurement Division',
-        role: 'officer'
-      })
-    } else {
-      onLogin({
-        name: 'Dr. Ananya Verma',
-        email: 'ananya.verma@bis.gov.in',
-        department: 'BIS Technical Committee / Regulatory Liaison',
-        role: 'admin'
-      })
-    }
+    const demoUser = role === 'officer'
+      ? {
+          name: 'Ramesh Sharma',
+          email: 'r.sharma@cpwd.gov.in',
+          department: 'Central Public Works Department (CPWD)',
+          role: 'officer'
+        }
+      : {
+          name: 'Dr. Ananya Verma',
+          email: 'ananya.verma@bis.gov.in',
+          department: 'Bureau of Indian Standards (BIS)',
+          role: 'admin'
+        }
+
+    try {
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(demoUser))
+    } catch (_) {}
+
+    onLogin(demoUser)
   }
 
   return (
