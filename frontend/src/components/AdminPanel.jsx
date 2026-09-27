@@ -25,7 +25,13 @@ import {
   saveCustomStandardLocally,
   deleteCustomStandardLocally
 } from '../utils/localEngine'
-import { getCuratedStandardNosForOrg } from '../utils/organizationStandards'
+import {
+  getCuratedStandardNosForOrg,
+  getOrgDomainForStandard,
+  getAllOrgsForStandard,
+  doesStandardMatch,
+  ORG_STANDARDS_TAXONOMY
+} from '../utils/organizationStandards'
 
 export const ADMIN_ORG_FILTERS = [
   { id: 'all', value: '', name: 'All Standards', name_hi: 'सभी मानक', icon: '🏛️' },
@@ -60,6 +66,7 @@ export default function AdminPanel({
   const [standardsList, setStandardsList] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSector, setSelectedSector] = useState('')
+  const [displayLimit, setDisplayLimit] = useState(25)
   const [showAddForm, setShowAddForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [syncing, setSyncing] = useState(false)
@@ -297,7 +304,11 @@ export default function AdminPanel({
     }
     const orgStandards = getCuratedStandardNosForOrg(filterValue)
     if (orgStandards && orgStandards.length > 0) {
-      return standardsList.filter((s) => orgStandards.includes(s.standard_no) || (s.sector && s.sector.includes(filterValue))).length
+      return standardsList.filter(
+        (s) =>
+          orgStandards.some((no) => doesStandardMatch(no, s.standard_no)) ||
+          (s.sector && s.sector.toLowerCase().includes(filterValue.toLowerCase()))
+      ).length
     }
     return standardsList.filter((s) => s.sector && s.sector.toLowerCase().includes(filterValue.toLowerCase())).length
   }
@@ -320,7 +331,7 @@ export default function AdminPanel({
 
     // Organization standard match
     const orgStandards = getCuratedStandardNosForOrg(selectedSector)
-    if (orgStandards && orgStandards.includes(s.standard_no)) return true
+    if (orgStandards && orgStandards.some((no) => doesStandardMatch(no, s.standard_no))) return true
 
     // Sector string includes
     if (s.sector && s.sector.toLowerCase().includes(selectedSector.toLowerCase())) return true
@@ -748,12 +759,14 @@ export default function AdminPanel({
               {ADMIN_ORG_FILTERS.map((f) => {
                 const isSelected = (!selectedSector && f.value === '') || (selectedSector === f.value)
                 const count = getFilterCount(f.value)
-                if (f.value !== '' && count === 0) return null
                 return (
                   <button
                     key={f.id}
                     type="button"
-                    onClick={() => setSelectedSector(f.value)}
+                    onClick={() => {
+                      setSelectedSector(f.value)
+                      setDisplayLimit(25)
+                    }}
                     className={`px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
                       isSelected
                         ? 'bg-[#0F2942] text-white border border-[#0F2942] shadow-2xs'
@@ -782,7 +795,7 @@ export default function AdminPanel({
                 <tr>
                   <th className="py-3 px-4">{isHindi ? 'मानक कोड' : 'Standard Code'}</th>
                   <th className="py-3 px-4">{isHindi ? 'शीर्षक / उत्पाद विवरण' : 'Title'}</th>
-                  <th className="py-3 px-4">{isHindi ? 'क्षेत्र' : 'Sector'}</th>
+                  <th className="py-3 px-4">{isHindi ? 'संगठन डोमेन / क्षेत्र' : 'Organization Domain / Sector'}</th>
                   <th className="py-3 px-4">{isHindi ? 'स्थिति' : 'Status'}</th>
                   <th className="py-3 px-4">{isHindi ? 'स्रोत प्रमाणिकता' : 'Source Provenance'}</th>
                   <th className="py-3 px-4">{isHindi ? 'QCO एवं प्रमाणन' : 'QCO & Certification'}</th>
@@ -790,7 +803,7 @@ export default function AdminPanel({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5DDD1] bg-white">
-                {filteredStandards.slice(0, 15).map((std) => (
+                {filteredStandards.slice(0, displayLimit).map((std) => (
                   <tr key={std.id} className="hover:bg-[#FAF7F2] transition-colors">
                     <td className="py-3 px-4 font-mono font-bold text-[#1B4965] whitespace-nowrap">
                       {std.standard_no}
@@ -798,8 +811,69 @@ export default function AdminPanel({
                     <td className="py-3 px-4 font-medium text-[#1C1C1E] max-w-xs truncate" title={std.title}>
                       {std.title}
                     </td>
-                    <td className="py-3 px-4 text-[#4A4A4A] whitespace-nowrap font-medium">
-                      {formatSector(std.sector)}
+                    <td className="py-3 px-4">
+                      {(() => {
+                        // 1. If an organization filter is active, show that organization's domain
+                        const isOrgFilter = selectedSector && !['Electrical & Power', 'Civil & Construction', 'PPE & Safety Equipment', 'all'].includes(selectedSector)
+                        
+                        // Look up domain for selected organization, OR if standard has custom sector mapped to an org, check that org
+                        const targetOrg = isOrgFilter ? selectedSector : (ORG_STANDARDS_TAXONOMY[std.sector] ? std.sector : null)
+                        const orgDomain = targetOrg ? getOrgDomainForStandard(std.standard_no, targetOrg) : null
+
+                        if (orgDomain) {
+                          return (
+                            <div className="flex flex-col gap-1 min-w-[200px] max-w-[280px]">
+                              <div className="font-bold text-[#0F2942] flex items-start gap-1.5 leading-snug">
+                                <span className="text-sm shrink-0">{orgDomain.icon}</span>
+                                <span className="text-xs">{isHindi ? (orgDomain.domainName_hi || orgDomain.domainName) : orgDomain.domainName}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-[10px]">
+                                <span className="px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DDD1] font-medium text-[#555]">
+                                  {formatSector(std.sector)}
+                                </span>
+                                <span className="text-[#9A9A9E]">•</span>
+                                <span className="font-bold text-[#1B4965] bg-[#EBF3FA] px-1.5 py-0.2 rounded border border-[#BFDBFE]">
+                                  {orgDomain.shortName}
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        // 2. If All Standards or Core Sector is selected, show primary sector + all mandating organization badges
+                        const matchingOrgs = getAllOrgsForStandard(std.standard_no)
+                        return (
+                          <div className="flex flex-col gap-1.5 min-w-[180px] max-w-[280px]">
+                            <div className="flex items-center gap-1.5">
+                              <span className="px-2 py-0.5 rounded-md bg-[#FAF7F2] border border-[#E5DDD1] text-[11px] font-bold text-[#1B4965] whitespace-nowrap">
+                                {formatSector(std.sector)}
+                              </span>
+                            </div>
+                            {matchingOrgs.length > 0 && (
+                              <div className="flex flex-wrap gap-1 items-center">
+                                {matchingOrgs.slice(0, 3).map((org, i) => (
+                                  <span
+                                    key={i}
+                                    title={`${org.shortName}: ${isHindi ? (org.domainName_hi || org.domainName) : org.domainName}`}
+                                    className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-white border border-[#E5DDD1] text-[#333] inline-flex items-center gap-1 shadow-2xs cursor-help hover:border-[#1B4965] hover:text-[#0F2942]"
+                                  >
+                                    <span>{org.icon}</span>
+                                    <span>{org.shortName}</span>
+                                  </span>
+                                ))}
+                                {matchingOrgs.length > 3 && (
+                                  <span
+                                    title={matchingOrgs.slice(3).map(o => o.shortName).join(', ')}
+                                    className="text-[9px] font-semibold text-[#7A7A7A] font-mono bg-[#FAF7F2] px-1 py-0.5 rounded border border-[#E5DDD1] cursor-help"
+                                  >
+                                    +{matchingOrgs.length - 3} {isHindi ? 'विभाग' : 'orgs'}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })()}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {std.status === 'superseded' ? (
@@ -915,11 +989,26 @@ export default function AdminPanel({
             </table>
           </div>
 
-          <p className="text-xs text-[#7A7A7A] font-semibold text-right">
-            {isHindi
-              ? `${filteredStandards.length} सत्यापित मानकों में से ${Math.min(15, filteredStandards.length)} प्रदर्शित`
-              : `Showing ${Math.min(15, filteredStandards.length)} of ${filteredStandards.length} verified standards`}
-          </p>
+          <div className="flex items-center justify-between pt-2">
+            <div>
+              {filteredStandards.length > displayLimit && (
+                <button
+                  type="button"
+                  onClick={() => setDisplayLimit((prev) => prev + 25)}
+                  className="px-3 py-1.5 bg-white border border-[#E5DDD1] rounded-xl text-xs font-bold text-[#1B4965] hover:bg-[#FAF7F2] transition-colors shadow-2xs cursor-pointer"
+                >
+                  {isHindi
+                    ? `+ और 25 मानक लोड करें (शेष: ${filteredStandards.length - displayLimit})`
+                    : `+ Load 25 More Standards (${filteredStandards.length - displayLimit} remaining)`}
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-[#7A7A7A] font-semibold text-right">
+              {isHindi
+                ? `${filteredStandards.length} सत्यापित मानकों में से ${Math.min(displayLimit, filteredStandards.length)} प्रदर्शित`
+                : `Showing ${Math.min(displayLimit, filteredStandards.length)} of ${filteredStandards.length} verified standards`}
+            </p>
+          </div>
         </div>
       </div>
     </div>

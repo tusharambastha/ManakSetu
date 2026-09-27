@@ -551,3 +551,90 @@ export function getSectorForDomain(domainNameOrId) {
   return domainNameOrId
 }
 
+/**
+ * Normalizes standard number string for comparison
+ */
+export function normalizeStandardNo(stdNo) {
+  if (!stdNo) return ''
+  return stdNo
+    .replace(/[—–-]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+/**
+ * Robust matching between two standard numbers, tolerating year suffixes and punctuation
+ */
+export function doesStandardMatch(stdA, stdB) {
+  if (!stdA || !stdB) return false
+  const a = normalizeStandardNo(stdA)
+  const b = normalizeStandardNo(stdB)
+  if (a === b) return true
+
+  // Compare without year revision: e.g. "is 1786" vs "is 1786:2008"
+  const aBase = a.split(':')[0].trim()
+  const bBase = b.split(':')[0].trim()
+  if (aBase === bBase) return true
+
+  // Strip all non-alphanumeric
+  const aClean = a.replace(/[^a-z0-9]/g, '')
+  const bClean = b.replace(/[^a-z0-9]/g, '')
+  if (aClean === bClean) return true
+  if (aClean.length > 5 && bClean.length > 5) {
+    if (aClean.startsWith(bClean) || bClean.startsWith(aClean)) return true
+  }
+  return false
+}
+
+/**
+ * Returns specific domain details for a standard within an organization
+ */
+export function getOrgDomainForStandard(standardNo, department) {
+  if (!standardNo || !department) return null
+  const tax = getTaxonomyForOrg(department)
+  if (!tax || !tax.domains) return null
+
+  for (const domain of tax.domains) {
+    if (domain.standard_nos.some((no) => doesStandardMatch(no, standardNo))) {
+      return {
+        id: domain.id,
+        domainName: domain.name,
+        domainName_hi: domain.name_hi,
+        icon: tax.icon,
+        shortName: tax.shortName,
+        themeColor: tax.themeColor,
+        badgeLabel: tax.badgeLabel
+      }
+    }
+  }
+  return null
+}
+
+/**
+ * Returns all organizations and domains that mandate or use this standard
+ */
+export function getAllOrgsForStandard(standardNo) {
+  if (!standardNo) return []
+  const results = []
+
+  for (const [key, tax] of Object.entries(ORG_STANDARDS_TAXONOMY)) {
+    if (!tax.domains) continue
+    for (const domain of tax.domains) {
+      if (domain.standard_nos.some((no) => doesStandardMatch(no, standardNo))) {
+        results.push({
+          orgKey: key,
+          shortName: tax.shortName,
+          icon: tax.icon,
+          themeColor: tax.themeColor,
+          badgeLabel: tax.badgeLabel,
+          domainName: domain.name,
+          domainName_hi: domain.name_hi
+        })
+        break // Keep one primary domain per organization
+      }
+    }
+  }
+  return results
+}
+
