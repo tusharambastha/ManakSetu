@@ -1,7 +1,7 @@
 """Organization-Specific Benchmark Scenarios for ManakSetu
 Centralized configuration mapping each registered organization to 4 curated
-benchmark tender scenarios. The sample tender text is domain-realistic for that
-organization's procurement domain. Analysis results always come from the real
+benchmark tender scenarios. Each scenario has English query and Hindi (query_hi)
+variant for the multilingual pipeline. Analysis results always come from the real
 ManakSetu retrieval pipeline — never hardcoded.
 """
 from fastapi import APIRouter, Query
@@ -12,7 +12,8 @@ router = APIRouter(prefix="/benchmarks", tags=["Organization Benchmarks"])
 # ─── Centralized Org → Benchmark Map ─────────────────────────────────────────
 # Each org maps to exactly 4 benchmark scenarios.
 # iconType must be one of: alert, hardhat, building, shield, zap, bolt
-# query text is domain-specific but does NOT claim any specific IS result.
+# query     — English tender specification text
+# query_hi  — Hindi/Hinglish equivalent for multilingual analysis
 # The real pipeline resolves applicable standards from the verified KB.
 
 ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
@@ -28,6 +29,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 "
                 "for multi-storey prestressed concrete construction works and "
                 "reinforced concrete structural elements at CPWD project sites."
+            ),
+            "query_hi": (
+                "CPWD pariyojana sthalon par multi-storey prestressed concrete nirman karyon "
+                "aur reinforced concrete structural elements ke liye IS 12269 ke anusar "
+                "53 Grade Ordinary Portland Cement ki supply karein."
             )
         },
         {
@@ -39,6 +45,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of high strength deformed TMT steel bars Fe 500D grade with "
                 "minimum 16% elongation and ductile seismic detailing for reinforced "
                 "concrete structural members, beams and columns in CPWD construction projects."
+            ),
+            "query_hi": (
+                "CPWD construction projects mein reinforced concrete structural members, beams "
+                "aur columns ke liye minimum 16 pratishat elongation aur seismic ductile "
+                "detailing wale Fe 500D grade high strength deformed TMT steel bars ki aapurti."
             )
         },
         {
@@ -50,6 +61,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of industrial safety helmets with electrical insulation up to 440V, "
                 "adjustable harness, chin strap and shock absorption for construction "
                 "site engineers and workmen at CPWD infrastructure project locations."
+            ),
+            "query_hi": (
+                "CPWD infrastructure project locations par construction site engineers aur "
+                "workmen ke liye 440V tak electrical insulation, adjustable harness, chin strap "
+                "aur shock absorption sahit industrial safety helmets ki aapurti."
             )
         },
         {
@@ -66,6 +82,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "rating up to 415V for site staff.\n"
                 "Clause 16: Supply of structural steel sections for fabrication of "
                 "site gantry and hoisting structures."
+            ),
+            "query_hi": (
+                "Clause 4: RCC construction ke liye IS 12269 anusar 53 Grade OPC Cement ki supply.\n"
+                "Clause 8: Site office installation ke liye PVC insulated copper electrical wiring aur conduits.\n"
+                "Clause 12: Site staff ke liye 415V tak electrical insulation rating wale heavy-duty industrial safety helmets.\n"
+                "Clause 16: Site gantry aur hoisting structures ke fabrication ke liye structural steel sections."
             )
         }
     ],
@@ -81,6 +103,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Verify current active status of Ordinary Portland Cement specifications "
                 "including IS 12269 and IS 8112 and identify whether they have been "
                 "superseded or revised and what the current applicable edition is."
+            ),
+            "query_hi": (
+                "IS 12269 aur IS 8112 jaise Ordinary Portland Cement specifications ki "
+                "current active status verify karein aur pata lagaein ki kya ye superseded "
+                "ya revised ho chuke hain aur current applicable edition kya hai."
             )
         },
         {
@@ -92,6 +119,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Audit procurement specification for PVC insulated copper electrical "
                 "cables rated 1100V for Quality Control Order applicability, mandatory "
                 "ISI mark requirements and BIS product certification scheme compliance."
+            ),
+            "query_hi": (
+                "1100V rated PVC insulated copper electrical cables ki procurement specification "
+                "ko Quality Control Order applicability, mandatory ISI mark requirements "
+                "aur BIS product certification scheme ke liye audit karein."
             )
         },
         {
@@ -103,6 +135,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Verify certification requirements for industrial safety helmets, "
                 "safety footwear with steel toe cap and personal protective equipment "
                 "including mandatory BIS ISI mark and QCO applicability status."
+            ),
+            "query_hi": (
+                "Industrial safety helmets, steel toe cap wale safety footwear aur "
+                "personal protective equipment ki certification requirements verify karein "
+                "jisme mandatory BIS ISI mark aur QCO applicability status shamil hai."
             )
         },
         {
@@ -117,6 +154,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "copper building wires and cables.\n"
                 "Clause 3: Verify certification scheme for industrial safety helmets.\n"
                 "Clause 4: Verify status and current edition for TMT reinforcement steel bars."
+            ),
+            "query_hi": (
+                "Clause 1: 53 Grade OPC Cement ke IS standard status verify karein aur current superseding standard identify karein.\n"
+                "Clause 2: PVC insulated copper building wires aur cables ki QCO applicability aur ISI certification verify karein.\n"
+                "Clause 3: Industrial safety helmets ki certification scheme verify karein.\n"
+                "Clause 4: TMT reinforcement steel bars ka status aur current edition verify karein."
             )
         }
     ],
@@ -132,6 +175,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "GeM procurement specification for single core and multicore PVC insulated "
                 "copper conductor cables rated 1100V working voltage with flame retardant "
                 "FRLS properties for government office installations and building wiring."
+            ),
+            "query_hi": (
+                "Government office installations aur building wiring ke liye 1100V working "
+                "voltage rated flame retardant FRLS properties wale single core aur multicore "
+                "PVC insulated copper conductor cables ki GeM procurement specification."
             )
         },
         {
@@ -143,6 +191,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "GeM procurement of miniature circuit breakers MCB 10kA breaking capacity "
                 "C-curve rated 16A, 32A and 63A for government office electrical distribution "
                 "boards, plug and socket outlets and electrical protection systems."
+            ),
+            "query_hi": (
+                "Government office electrical distribution boards, plug aur socket outlets "
+                "aur electrical protection systems ke liye 16A, 32A aur 63A rated 10kA "
+                "breaking capacity C-curve miniature circuit breakers MCB ki GeM procurement."
             )
         },
         {
@@ -154,6 +207,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "GeM procurement of personal protective equipment including industrial safety "
                 "helmets, safety footwear with 200J steel toe cap impact resistance and "
                 "anti-static outsole for government construction and maintenance workers."
+            ),
+            "query_hi": (
+                "Government construction aur maintenance workers ke liye industrial safety "
+                "helmets, 200J steel toe cap impact resistance wale safety footwear aur "
+                "anti-static outsole sahit personal protective equipment ki GeM procurement."
             )
         },
         {
@@ -169,6 +227,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause C: Industrial safety helmets for government site workers — "
                 "verify BIS certification requirements.\n"
                 "Clause D: LED lamps and luminaires for government office lighting."
+            ),
+            "query_hi": (
+                "Clause A: Government office electrical installation ke liye PVC insulated copper building wires aur cables — QCO aur ISI requirements verify karein.\n"
+                "Clause B: Distribution boards ke liye miniature circuit breakers — applicable IS standard aur mandatory certification verify karein.\n"
+                "Clause C: Government site workers ke liye industrial safety helmets — BIS certification requirements verify karein.\n"
+                "Clause D: Government office lighting ke liye LED lamps aur luminaires."
             )
         }
     ],
@@ -184,6 +248,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of XLPE cross-linked polyethylene insulated power cables rated "
                 "1100V for railway traction auxiliary systems, signalling installations "
                 "and platform power distribution at Indian Railways stations."
+            ),
+            "query_hi": (
+                "Indian Railways stations par railway traction auxiliary systems, "
+                "signalling installations aur platform power distribution ke liye "
+                "1100V rated XLPE cross-linked polyethylene insulated power cables ki aapurti."
             )
         },
         {
@@ -195,6 +264,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Procurement of hot rolled medium and high tensile structural steel sections "
                 "including angles, channels and I-beams for railway station structural "
                 "fabrication, foot over bridges, platform roofing and gantry structures."
+            ),
+            "query_hi": (
+                "Railway station structural fabrication, foot over bridges, platform roofing "
+                "aur gantry structures ke liye angles, channels aur I-beams sahit hot rolled "
+                "medium aur high tensile structural steel sections ki procurement."
             )
         },
         {
@@ -206,6 +280,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of industrial safety helmets with electrical insulation, high "
                 "visibility warning clothing and full body safety harnesses for railway "
                 "track maintenance staff, overhead equipment gangs and station construction workers."
+            ),
+            "query_hi": (
+                "Railway track maintenance staff, overhead equipment gangs aur station "
+                "construction workers ke liye electrical insulation sahit industrial safety "
+                "helmets, high visibility warning clothing aur full body safety harnesses ki aapurti."
             )
         },
         {
@@ -221,6 +300,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 12: Industrial safety helmets and high visibility clothing for "
                 "track maintenance and signalling staff.\n"
                 "Clause 16: HDPE pipes for railway colony water supply distribution."
+            ),
+            "query_hi": (
+                "Clause 4: Railway station electrical installations ke liye PVC insulated copper cables ki supply.\n"
+                "Clause 8: Railway station roof fabrication aur platform structures ke liye high tensile structural steel.\n"
+                "Clause 12: Track maintenance aur signalling staff ke liye industrial safety helmets aur high visibility clothing.\n"
+                "Clause 16: Railway colony water supply distribution ke liye HDPE pipes."
             )
         }
     ],
@@ -236,6 +321,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of PVC insulated heavy duty electric cables rated 1100V and XLPE "
                 "insulated power cables for defence establishment electrical installations, "
                 "military engineering services projects and armament depot power distribution."
+            ),
+            "query_hi": (
+                "Defence establishments, military engineering services projects aur armament "
+                "depot power distribution ke liye 1100V rated PVC insulated heavy duty "
+                "electric cables aur XLPE insulated power cables ki aapurti."
             )
         },
         {
@@ -247,6 +337,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Procurement of hot rolled structural steel sections conforming to applicable "
                 "Indian Standards for Military Engineering Services construction projects "
                 "including barracks, hangars and defence facility structural fabrication."
+            ),
+            "query_hi": (
+                "Barracks, hangars aur defence facility structural fabrication sahit Military "
+                "Engineering Services construction projects ke liye applicable Indian Standards "
+                "ke anusar hot rolled structural steel sections ki procurement."
             )
         },
         {
@@ -258,6 +353,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of personal protective equipment for defence construction sites "
                 "including industrial safety helmets, leather safety boots for construction "
                 "workers, full body safety harnesses and electrical insulation rubber gloves."
+            ),
+            "query_hi": (
+                "Defence construction sites ke liye personal protective equipment ki aapurti "
+                "jisme industrial safety helmets, construction workers ke liye leather safety "
+                "boots, full body safety harnesses aur electrical insulation rubber gloves shamil hain."
             )
         },
         {
@@ -273,6 +373,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 12: Electrical cables for defence installation power distribution "
                 "— verify QCO and ISI certification requirements.\n"
                 "Clause 16: Safety helmets and PPE for defence construction site workers."
+            ),
+            "query_hi": (
+                "Clause 4: MES construction ke liye OPC cement — applicable IS standard aur current active edition verify karein.\n"
+                "Clause 8: Defence establishment construction ke liye Fe 500D TMT bars — IS compliance requirements verify karein.\n"
+                "Clause 12: Defence installation power distribution ke liye electrical cables — QCO aur ISI certification verify karein.\n"
+                "Clause 16: Defence construction site workers ke liye safety helmets aur PPE."
             )
         }
     ],
@@ -288,6 +394,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Audit of procurement specification for electrical cables, circuit breakers "
                 "and electrical accessories for Quality Control Order applicability and "
                 "mandatory BIS ISI certification requirements under DPIIT notified QCOs."
+            ),
+            "query_hi": (
+                "DPIIT notified QCOs ke antargat electrical cables, circuit breakers aur "
+                "electrical accessories ki procurement specification ko Quality Control Order "
+                "applicability aur mandatory BIS ISI certification requirements ke liye audit karein."
             )
         },
         {
@@ -299,6 +410,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Verify applicable Indian Standards for industrial electrical equipment "
                 "including distribution transformers up to 100 kVA, low voltage switchgear "
                 "and controlgear circuit breakers rated 440V for manufacturing installations."
+            ),
+            "query_hi": (
+                "Manufacturing installations ke liye 100 kVA tak distribution transformers, "
+                "low voltage switchgear aur 440V rated controlgear circuit breakers ke liye "
+                "applicable Indian Standards verify karein."
             )
         },
         {
@@ -310,6 +426,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Verify mandatory certification requirements and QCO applicability for "
                 "personal protective equipment including industrial safety helmets, "
                 "safety footwear and eye protectors for industrial workforce procurement."
+            ),
+            "query_hi": (
+                "Industrial workforce procurement ke liye industrial safety helmets, "
+                "safety footwear aur eye protectors sahit personal protective equipment ki "
+                "mandatory certification requirements aur QCO applicability verify karein."
             )
         },
         {
@@ -325,6 +446,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 3: Industrial safety helmets for factory workforce "
                 "— verify BIS ISI certification requirement.\n"
                 "Clause 4: Distribution transformers for industrial supply."
+            ),
+            "query_hi": (
+                "Clause 1: Industrial installation ke liye 1100V PVC insulated cables — QCO aur mandatory ISI mark verify karein.\n"
+                "Clause 2: Industrial distribution boards ke liye miniature circuit breakers — applicable IS standard verify karein.\n"
+                "Clause 3: Factory workforce ke liye industrial safety helmets — BIS ISI certification verify karein.\n"
+                "Clause 4: Industrial supply ke liye distribution transformers."
             )
         }
     ],
@@ -340,6 +467,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of XLPE cross-linked polyethylene insulated thermoplastic sheathed "
                 "power cables for 11kV and 33kV underground power distribution systems, "
                 "substation interconnections and electricity distribution network installations."
+            ),
+            "query_hi": (
+                "Substation interconnections aur electricity distribution network installations "
+                "ke liye 11kV aur 33kV underground power distribution systems ke liye XLPE "
+                "cross-linked polyethylene insulated thermoplastic sheathed power cables ki aapurti."
             )
         },
         {
@@ -351,6 +483,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Procurement of outdoor type oil immersed distribution transformers up to "
                 "100 kVA for rural electricity distribution under government electrification "
                 "schemes, conforming to applicable Indian Standards and energy efficiency norms."
+            ),
+            "query_hi": (
+                "Government electrification schemes ke antargat rural electricity distribution "
+                "ke liye 100 kVA tak outdoor type oil immersed distribution transformers ki "
+                "procurement, applicable Indian Standards aur energy efficiency norms ke anusar."
             )
         },
         {
@@ -362,6 +499,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of AC static direct connected smart electricity meters and polyphase "
                 "watt-hour meters Class 1 and 2 for electricity board revenue metering, "
                 "net metering for rooftop solar and advanced metering infrastructure rollout."
+            ),
+            "query_hi": (
+                "Revenue metering, rooftop solar ke liye net metering aur advanced metering "
+                "infrastructure rollout ke liye AC static direct connected smart electricity "
+                "meters aur polyphase watt-hour meters Class 1 aur 2 ki aapurti."
             )
         },
         {
@@ -377,6 +519,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 12: AC static electricity meters for revenue metering rollout "
                 "— verify IS standard and mandatory ISI certification.\n"
                 "Clause 16: Electrical earthing systems for substation installations."
+            ),
+            "query_hi": (
+                "Clause 4: Distribution network ke liye XLPE insulated underground power cables — applicable IS standards aur QCO requirements verify karein.\n"
+                "Clause 8: Rural electrification ke liye oil immersed distribution transformers — applicable IS standard aur certification verify karein.\n"
+                "Clause 12: Revenue metering rollout ke liye AC static electricity meters — IS standard aur mandatory ISI certification verify karein.\n"
+                "Clause 16: Substation installations ke liye electrical earthing systems."
             )
         }
     ],
@@ -392,6 +540,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of Portland Pozzolana Cement fly ash based and Ordinary Portland "
                 "Cement 43 grade for urban housing construction, affordable housing "
                 "projects and PMAY government scheme residential construction works."
+            ),
+            "query_hi": (
+                "PMAY government scheme residential construction works aur affordable housing "
+                "projects ke liye Portland Pozzolana Cement fly ash based aur 43 grade "
+                "Ordinary Portland Cement ki aapurti."
             )
         },
         {
@@ -403,6 +556,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of HDPE high density polyethylene pipes PN 10 and PN 16 pressure "
                 "class and uPVC unplasticized polyvinyl chloride pipes for urban potable "
                 "water supply distribution networks under AMRUT and smart city infrastructure."
+            ),
+            "query_hi": (
+                "AMRUT aur smart city infrastructure ke antargat urban potable water supply "
+                "distribution networks ke liye HDPE pipes PN 10 aur PN 16 pressure class "
+                "aur uPVC pipes ki aapurti."
             )
         },
         {
@@ -414,6 +572,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of LED lamps, luminaires for general lighting and PVC insulated "
                 "copper building wires for urban street lighting, government housing "
                 "complex electrical installation and smart city energy efficiency projects."
+            ),
+            "query_hi": (
+                "Urban street lighting, government housing complex electrical installation "
+                "aur smart city energy efficiency projects ke liye LED lamps, general "
+                "lighting ke liye luminaires aur PVC insulated copper building wires ki aapurti."
             )
         },
         {
@@ -429,6 +592,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 12: LED luminaires for urban street lighting "
                 "— verify applicable IS standard and BIS certification.\n"
                 "Clause 16: PVC insulated copper wires for housing colony electrification."
+            ),
+            "query_hi": (
+                "Clause 4: PMAY urban housing construction ke liye Portland Pozzolana Cement — applicable IS standard aur active edition verify karein.\n"
+                "Clause 8: AMRUT urban infrastructure ke liye HDPE water supply pipes — IS standard aur certification requirements verify karein.\n"
+                "Clause 12: Urban street lighting ke liye LED luminaires — applicable IS standard aur BIS certification verify karein.\n"
+                "Clause 16: Housing colony electrification ke liye PVC insulated copper wires."
             )
         }
     ],
@@ -444,6 +613,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 for "
                 "rigid pavement, concrete road construction, bridge deck works and "
                 "highway infrastructure projects under NHAI national highway development."
+            ),
+            "query_hi": (
+                "NHAI national highway development ke antargat rigid pavement, concrete road "
+                "construction aur bridge deck works ke liye IS 12269 ke anusar 53 Grade "
+                "Ordinary Portland Cement ki aapurti."
             )
         },
         {
@@ -455,6 +629,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of high strength deformed TMT steel bars Fe 500D grade and "
                 "hot rolled structural steel for reinforced concrete bridge piers, "
                 "flyover structures, highway ROB and major bridge construction under NHAI."
+            ),
+            "query_hi": (
+                "NHAI ke antargat reinforced concrete bridge piers, flyover structures "
+                "aur highway ROB ke liye Fe 500D grade high strength deformed TMT steel "
+                "bars aur hot rolled structural steel ki aapurti."
             )
         },
         {
@@ -466,6 +645,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of HDPE high density polyethylene pipes and precast concrete pipes "
                 "with reinforcement for highway side drainage, culverts, underpasses "
                 "and cross-drainage structures on national highway projects."
+            ),
+            "query_hi": (
+                "National highway projects par highway side drainage, culverts, underpasses "
+                "aur cross-drainage structures ke liye HDPE pipes aur reinforcement wale "
+                "precast concrete pipes ki aapurti."
             )
         },
         {
@@ -481,6 +665,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 12: Structural steel sections for highway gantry and signage "
                 "structures — verify applicable IS standards.\n"
                 "Clause 16: Safety helmets and PPE for highway construction workers."
+            ),
+            "query_hi": (
+                "Clause 4: National highway par concrete pavement ke liye 53 Grade OPC Cement — IS 12269 status aur applicable current standard verify karein.\n"
+                "Clause 8: Highway bridge aur flyover reinforcement ke liye Fe 500D TMT bars — IS standard aur ductility requirements verify karein.\n"
+                "Clause 12: Highway gantry aur signage structures ke liye structural steel sections — applicable IS standards verify karein.\n"
+                "Clause 16: Highway construction workers ke liye safety helmets aur PPE."
             )
         }
     ],
@@ -497,6 +687,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "PVC insulated control cables rated 1100V for thermal power plant "
                 "auxiliary systems, boiler controls, turbine hall and coal handling plant "
                 "electrical distribution at NTPC generating stations."
+            ),
+            "query_hi": (
+                "NTPC generating stations par thermal power plant auxiliary systems, "
+                "boiler controls, turbine hall aur coal handling plant electrical distribution "
+                "ke liye XLPE insulated power cables aur 1100V rated PVC insulated control cables ki aapurti."
             )
         },
         {
@@ -509,6 +704,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "circuit breakers and miniature circuit breakers for power station "
                 "control room, auxiliary motor control centres and LT distribution "
                 "panels at NTPC thermal power generating units."
+            ),
+            "query_hi": (
+                "NTPC thermal power generating units par power station control room, "
+                "auxiliary motor control centres aur LT distribution panels ke liye "
+                "low voltage switchgear moulded case circuit breakers aur miniature circuit breakers ki procurement."
             )
         },
         {
@@ -520,6 +720,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of industrial safety helmets, rubber gloves for electrical purposes, "
                 "full body harnesses, safety footwear and respiratory protective devices "
                 "for thermal power plant operations, maintenance staff and construction workers."
+            ),
+            "query_hi": (
+                "Thermal power plant operations, maintenance staff aur construction workers "
+                "ke liye industrial safety helmets, electrical purposes ke liye rubber gloves, "
+                "full body harnesses, safety footwear aur respiratory protective devices ki aapurti."
             )
         },
         {
@@ -535,6 +740,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 12: Rubber gloves for electrical purposes and safety helmets "
                 "for plant workers — verify ISI and QCO requirements.\n"
                 "Clause 16: Structural steel for power plant service building construction."
+            ),
+            "query_hi": (
+                "Clause 4: Power plant auxiliary systems ke liye XLPE insulated power cables — applicable IS standards aur certification verify karein.\n"
+                "Clause 8: LT motor control centres ke liye moulded case circuit breakers — IS standard aur mandatory ISI requirements verify karein.\n"
+                "Clause 12: Plant workers ke liye electrical purposes ke rubber gloves aur safety helmets — ISI aur QCO requirements verify karein.\n"
+                "Clause 16: Power plant service building construction ke liye structural steel."
             )
         }
     ],
@@ -550,6 +761,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of high strength deformed TMT steel bars Fe 500D grade with "
                 "minimum 16% elongation, ductile seismic detailing and required mechanical "
                 "and chemical properties for reinforced concrete structural construction."
+            ),
+            "query_hi": (
+                "Reinforced concrete structural construction ke liye minimum 16 pratishat "
+                "elongation, ductile seismic detailing aur required mechanical aur chemical "
+                "properties wale Fe 500D grade high strength deformed TMT steel bars ki aapurti."
             )
         },
         {
@@ -562,6 +778,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "sections, angles and channels conforming to applicable Indian Standards "
                 "for industrial building fabrication, gantry girders and structural "
                 "steel frameworks for manufacturing facilities."
+            ),
+            "query_hi": (
+                "Industrial building fabrication, gantry girders aur manufacturing facilities "
+                "ke structural steel frameworks ke liye applicable Indian Standards ke anusar "
+                "hot rolled medium aur high tensile structural steel plates, sections, angles aur channels ki aapurti."
             )
         },
         {
@@ -573,6 +794,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Verify applicable Indian Standards for ready mixed concrete, plain and "
                 "reinforced concrete code of practice and coarse and fine aggregate "
                 "specifications for SAIL plant construction and civil infrastructure works."
+            ),
+            "query_hi": (
+                "SAIL plant construction aur civil infrastructure karyon ke liye ready mixed "
+                "concrete, plain aur reinforced concrete code of practice aur coarse aur "
+                "fine aggregate specifications ke applicable Indian Standards verify karein."
             )
         },
         {
@@ -589,6 +815,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "— verify QCO and ISI certification requirements.\n"
                 "Clause 16: Safety helmets, leather safety boots and PPE for steel "
                 "plant workers — verify applicable IS standards."
+            ),
+            "query_hi": (
+                "Clause 4: Construction ke liye Fe 500D TMT steel bars — applicable IS standard, status aur ductility certification verify karein.\n"
+                "Clause 8: Plant fabrication ke liye structural steel sections — IS 2062 applicability aur current status verify karein.\n"
+                "Clause 12: Steel plant power distribution ke liye electrical cables — QCO aur ISI certification verify karein.\n"
+                "Clause 16: Steel plant workers ke liye safety helmets, leather safety boots aur PPE — applicable IS standards verify karein."
             )
         }
     ],
@@ -605,6 +837,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "cross-linked polyethylene insulated power cables for industrial power "
                 "distribution, transformer connections and switchyard cabling at BHEL "
                 "manufacturing units and heavy engineering project sites."
+            ),
+            "query_hi": (
+                "BHEL manufacturing units aur heavy engineering project sites par industrial "
+                "power distribution, transformer connections aur switchyard cabling ke liye "
+                "1100V PVC insulated heavy duty electric cables aur XLPE insulated power cables ki aapurti."
             )
         },
         {
@@ -617,6 +854,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "miniature circuit breakers and residual current operated circuit breakers "
                 "for BHEL manufacturing plant motor control centres, distribution boards "
                 "and industrial electrical panels rated up to 440V."
+            ),
+            "query_hi": (
+                "BHEL manufacturing plant motor control centres, distribution boards aur "
+                "440V tak ke industrial electrical panels ke liye low voltage switchgear "
+                "moulded case circuit breakers, miniature circuit breakers aur residual "
+                "current operated circuit breakers ki procurement."
             )
         },
         {
@@ -629,6 +872,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "to 440V, rubber gloves for electrical purposes, full body harnesses and "
                 "leather safety boots for BHEL heavy engineering manufacturing plant "
                 "workers, electrical maintenance teams and fabrication shop floor staff."
+            ),
+            "query_hi": (
+                "BHEL heavy engineering manufacturing plant workers, electrical maintenance "
+                "teams aur fabrication shop floor staff ke liye 440V tak electrical insulation "
+                "wale industrial safety helmets, electrical purposes ke liye rubber gloves, "
+                "full body harnesses aur leather safety boots ki aapurti."
             )
         },
         {
@@ -645,6 +894,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "plant workers — verify BIS ISI mark and certification.\n"
                 "Clause 16: Rubber gloves for electrical purposes for maintenance staff "
                 "— verify IS standard and mandatory ISI requirement."
+            ),
+            "query_hi": (
+                "Clause 4: BHEL plant power distribution ke liye 1100V PVC insulated copper cables — applicable IS standard aur ISI/QCO requirements verify karein.\n"
+                "Clause 8: Plant motor control centres ke liye moulded case circuit breakers — IS standard aur mandatory certification requirements verify karein.\n"
+                "Clause 12: Plant workers ke liye 440V electrical insulation wale industrial safety helmets — BIS ISI mark aur certification verify karein.\n"
+                "Clause 16: Maintenance staff ke liye electrical purposes ke rubber gloves — IS standard aur mandatory ISI requirement verify karein."
             )
         }
     ],
@@ -660,6 +915,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 and "
                 "Portland Pozzolana Cement fly ash based for State PWD construction works "
                 "including roads, bridges, government buildings and public infrastructure."
+            ),
+            "query_hi": (
+                "State PWD construction karyon jaise roads, bridges, government buildings "
+                "aur public infrastructure ke liye IS 12269 ke anusar 53 Grade Ordinary "
+                "Portland Cement aur Portland Pozzolana Cement fly ash based ki aapurti."
             )
         },
         {
@@ -671,6 +931,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of high strength deformed TMT steel bars Fe 500D and coarse and "
                 "fine aggregates conforming to applicable Indian Standards for State PWD "
                 "reinforced concrete construction works, bridges and public buildings."
+            ),
+            "query_hi": (
+                "State PWD reinforced concrete construction, bridges aur public buildings "
+                "ke liye applicable Indian Standards ke anusar Fe 500D high strength deformed "
+                "TMT steel bars aur coarse aur fine aggregates ki aapurti."
             )
         },
         {
@@ -682,6 +947,11 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Supply of HDPE high density polyethylene pipes PN 10 and PN 16 and "
                 "uPVC pipes for rural water supply distribution under Jal Jeevan Mission "
                 "and state government drinking water schemes at State PWD project sites."
+            ),
+            "query_hi": (
+                "State PWD project sites par Jal Jeevan Mission aur state government drinking "
+                "water schemes ke antargat rural water supply distribution ke liye HDPE "
+                "pipes PN 10 aur PN 16 aur uPVC pipes ki aapurti."
             )
         },
         {
@@ -697,6 +967,12 @@ ORG_BENCHMARKS: Dict[str, List[Dict[str, Any]]] = {
                 "Clause 12: PVC insulated copper wiring for State PWD government office "
                 "electrification — verify QCO and ISI requirements.\n"
                 "Clause 16: Safety helmets and PPE for State PWD construction site workers."
+            ),
+            "query_hi": (
+                "Clause 4: State PWD road aur bridge construction ke liye 53 Grade OPC Cement — IS 12269 status aur current applicable standard identify karein.\n"
+                "Clause 8: Government building construction ke liye Fe 500D TMT reinforcement bars — applicable IS standard aur status verify karein.\n"
+                "Clause 12: State PWD government office electrification ke liye PVC insulated copper wiring — QCO aur ISI requirements verify karein.\n"
+                "Clause 16: State PWD construction site workers ke liye safety helmets aur PPE."
             )
         }
     ],
@@ -771,6 +1047,7 @@ def fetch_org_benchmarks(
     """
     Return organization-specific benchmark scenarios for the Officer Dashboard.
 
+    Each scenario includes both English (query) and Hindi (query_hi) tender text.
     The organization string is validated server-side against the canonical map.
     Unknown organizations receive a safe generic fallback (CPWD benchmarks).
     Results from running these benchmarks come from the real ManakSetu
@@ -785,7 +1062,7 @@ def fetch_org_benchmarks(
         "total": len(benchmarks),
         "benchmarks": benchmarks,
         "note": (
-            "Sample tender specifications are organization-domain-specific. "
+            "Each benchmark includes English (query) and Hindi (query_hi) tender text. "
             "All standards, QCO, and compliance results are retrieved from the "
             "verified ManakSetu Knowledge Base via the real analysis pipeline."
         )

@@ -102,11 +102,13 @@ export default function AnalysisWorkspace({
     : DEFAULT_SCENARIOS
 
   const handleInstantRun = (scenario) => {
-    setInputText(scenario.query)
+    // Use Hindi query when language is set to Hindi
+    const queryText = (language === 'hi' && scenario.query_hi) ? scenario.query_hi : scenario.query
+    setInputText(queryText)
     setMode('text')
     onAnalyze({
       type: 'text',
-      text: scenario.query,
+      text: queryText,
       sector: null,
       top_k: topK
     })
