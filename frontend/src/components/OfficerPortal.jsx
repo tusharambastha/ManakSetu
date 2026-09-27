@@ -840,7 +840,12 @@ export default function OfficerPortal({
         )}
 
         {activeTab === 'catalog' && (
-          <StandardsCatalog onSelectStandard={onSelectStandard} language={language} />
+          <StandardsCatalog
+            onSelectStandard={onSelectStandard}
+            language={language}
+            userDepartment={user?.department || ''}
+            user={user}
+          />
         )}
 
         {activeTab === 'history' && (

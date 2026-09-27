@@ -543,7 +543,12 @@ export default function AdminPortal({
 
         {/* Tab 2: Full Standards Catalogue */}
         {activeTab === 'catalog' && (
-          <StandardsCatalog onSelectStandard={onSelectStandard} language={language} />
+          <StandardsCatalog
+            onSelectStandard={onSelectStandard}
+            language={language}
+            userDepartment={user?.department || 'Bureau of Indian Standards (BIS)'}
+            user={user}
+          />
         )}
 
         {/* Tab 3: System Audit Logs */}
