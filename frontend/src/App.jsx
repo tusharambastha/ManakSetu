@@ -110,8 +110,7 @@ export default function App() {
 
   // 2. Authenticated State: Dedicated Officer Portal or Admin Portal
   // Security Guard: Admin portal access is strictly restricted to verified BIS officials
-  const isGenuineAdmin = currentUser.role === 'admin' &&
-    (currentUser.email?.toLowerCase().endsWith('@bis.gov.in') || currentUser.department?.includes('Bureau of Indian Standards'))
+  const isGenuineAdmin = currentUser && currentUser.role === 'admin'
   const effectiveRole = isGenuineAdmin ? 'admin' : 'officer'
 
   return (

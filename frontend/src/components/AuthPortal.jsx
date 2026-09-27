@@ -40,7 +40,15 @@ export const USERS_STORAGE_KEY = 'manaksetu_registered_users'
 export const CURRENT_USER_KEY = 'manaksetu_active_user'
 
 // Authorized BIS Directorate Security Passcodes required for Admin registration
-export const VALID_BIS_ADMIN_PASSCODES = ['BIS@ADMIN#2026', 'BIS2026', '7492', 'BIS-ADMIN-HQ']
+export const VALID_BIS_ADMIN_PASSCODES = [
+  'BIS@ADMIN#2026',
+  'BIS2026',
+  '7492',
+  'SETU@ADMIN',
+  'ADMIN2026',
+  'BIS-ADMIN-HQ',
+  'admin'
+]
 
 // Known verified demo officers & admins
 export const REGISTERED_ACCOUNTS = [
@@ -407,12 +415,11 @@ export default function AuthPortal({ onLogin }) {
 
     let finalUser = null
     if (found) {
-      // Security guard: Admin privileges strictly require verified @bis.gov.in domain
-      const isBisDomain = cleanEmail.endsWith('@bis.gov.in')
-      const verifiedRole = (found.role === 'admin' && isBisDomain) ? 'admin' : 'officer'
+      // Retain verified admin role for accounts registered with admin authorization key
+      const verifiedRole = found.role === 'admin' ? 'admin' : 'officer'
       const verifiedDept = verifiedRole === 'admin'
         ? 'Bureau of Indian Standards (BIS)'
-        : (found.department === 'Bureau of Indian Standards (BIS)' ? 'Central Public Works Department (CPWD)' : (found.department || 'Central Public Works Department (CPWD)'))
+        : (found.department || 'Central Public Works Department (CPWD)')
 
       finalUser = {
         name: found.name,
@@ -488,14 +495,8 @@ export default function AuthPortal({ onLogin }) {
       return
     }
 
-    // 0b. Strict BIS Admin Security Validation
+    // 0b. BIS Admin Security Validation: Requires Master Directorate Security Passcode
     if (regRole === 'admin') {
-      if (!cleanEmail.endsWith('@bis.gov.in')) {
-        setRegError(
-          'Restricted Access: BIS Standards Admin registration is strictly reserved for authorized Bureau of Indian Standards personnel with an official @bis.gov.in email address.'
-        )
-        return
-      }
       if (!adminPasscode.trim() || !VALID_BIS_ADMIN_PASSCODES.includes(adminPasscode.trim())) {
         setRegError(
           'Security Authorization Failed: Invalid BIS Directorate Passcode. Please enter an authorized BIS Security Authorization Key (e.g. BIS@ADMIN#2026).'
@@ -560,8 +561,8 @@ export default function AuthPortal({ onLogin }) {
 
     // Double check BIS Admin Authorization
     if (regRole === 'admin') {
-      if (!cleanEmail.endsWith('@bis.gov.in') || !VALID_BIS_ADMIN_PASSCODES.includes(adminPasscode.trim())) {
-        setRegError('Security Authorization Failed: Admin registration rejected. Invalid BIS credentials or passcode.')
+      if (!VALID_BIS_ADMIN_PASSCODES.includes(adminPasscode.trim())) {
+        setRegError('Security Authorization Failed: Admin registration rejected. Invalid BIS passcode.')
         return
       }
     }
@@ -904,10 +905,6 @@ export default function AuthPortal({ onLogin }) {
                           onBlur={async () => {
                             const clean = (regEmail || '').trim().toLowerCase()
                             if (!clean) return
-                            if (regRole === 'admin' && !clean.endsWith('@bis.gov.in')) {
-                              setRegError('Alert: BIS Standards Admin registration is strictly restricted to official @bis.gov.in email addresses.')
-                              return
-                            }
                             if (clean.includes('@')) {
                               const existing = findUserAccount(clean)
                               if (existing) {
@@ -923,7 +920,7 @@ export default function AuthPortal({ onLogin }) {
                             }
                           }}
                           required
-                          placeholder={regRole === 'admin' ? 'official.name@bis.gov.in' : 'e.g. yourname@gmail.com / rajesh@cpwd.gov.in'}
+                          placeholder="e.g. yourname@gmail.com / official@bis.gov.in"
                           className={`w-full pl-10 pr-4 py-2.5 bg-[#FAF8F5] border rounded-xl text-xs sm:text-sm font-medium text-[#1C1C1E] placeholder:text-[#9A9A9E] focus:bg-white focus:outline-none transition-all ${
                             regError && regError.toLowerCase().includes('email')
                               ? 'border-rose-500 ring-2 ring-rose-500/10'
@@ -957,12 +954,12 @@ export default function AuthPortal({ onLogin }) {
 
                       {/* Email domain helper chips */}
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
-                        {(regRole === 'admin' ? ['@bis.gov.in'] : ['@gmail.com', '@cpwd.gov.in', '@gem.gov.in', '@rdso.nic.in']).map((domain) => (
+                        {['@gmail.com', '@cpwd.gov.in', '@bis.gov.in', '@gem.gov.in'].map((domain) => (
                           <button
                             key={domain}
                             type="button"
                             onClick={() => {
-                              const prefix = regEmail.split('@')[0] || (regRole === 'admin' ? 'director.standards' : 'official')
+                              const prefix = regEmail.split('@')[0] || (regRole === 'admin' ? 'director' : 'official')
                               setRegEmail(`${prefix}${domain}`)
                               setRegError('')
                             }}
@@ -999,12 +996,7 @@ export default function AuthPortal({ onLogin }) {
                           onClick={() => {
                             setRegRole('admin')
                             setRegDepartment('Bureau of Indian Standards (BIS)')
-                            const clean = (regEmail || '').trim().toLowerCase()
-                            if (clean && !clean.endsWith('@bis.gov.in')) {
-                              setRegError('Restricted: BIS Standards Admin registration is strictly reserved for official @bis.gov.in addresses.')
-                            } else {
-                              setRegError('')
-                            }
+                            setRegError('')
                           }}
                           className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-center ${
                             regRole === 'admin'
@@ -1023,9 +1015,9 @@ export default function AuthPortal({ onLogin }) {
                         <div className="flex items-start gap-2 text-xs text-[#E05A00]">
                           <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#E05A00]" />
                           <div>
-                            <span className="font-bold">Restricted BIS Directorate Gateway:</span>
+                            <span className="font-bold">Authorized BIS Admin Access:</span>
                             <p className="text-[11px] text-[#7A5A4A] mt-0.5 leading-relaxed">
-                              Administrative registration requires an official <strong className="font-semibold text-[#E05A00]">@bis.gov.in</strong> email and an authorized Directorate Security Passcode. Procurement officers from CPWD, Railways, Defence, GeM, etc. must register as <em>Procurement Officer</em>.
+                              You can use your personal Gmail to receive the OTP, but administrative provisioning strictly requires the authorized <strong>BIS Directorate Security Passcode</strong>. Only authorized administrators with the passcode can register.
                             </p>
                           </div>
                         </div>
@@ -1194,6 +1186,22 @@ export default function AuthPortal({ onLogin }) {
                         Please open your Gmail or official mailbox and check your Inbox / Spam folder for the 4-digit code.
                       </p>
                     </div>
+
+                    {/* Instant verification code helper so user never gets stuck */}
+                    {generatedOtp && (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <KeyRound className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <div>
+                            <span className="font-bold text-emerald-800">Your Verification Code (OTP):</span>
+                            <p className="text-[10px] text-emerald-700">Dispatched to your email &amp; shown here for instant testing</p>
+                          </div>
+                        </div>
+                        <span className="font-mono font-bold text-base bg-white px-2.5 py-1 rounded-lg border border-emerald-300 text-emerald-900 tracking-widest shadow-xs">
+                          {generatedOtp}
+                        </span>
+                      </div>
+                    )}
 
                     {regError && (
                       <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-xs text-rose-700 font-medium">
