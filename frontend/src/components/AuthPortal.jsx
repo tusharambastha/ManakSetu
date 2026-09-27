@@ -279,21 +279,42 @@ export default function AuthPortal({ onLogin }) {
     const keyboardWalks = [
       'asdf', 'sdfg', 'dfgh', 'fghj', 'ghjk', 'hjkl',
       'qwer', 'wert', 'erty', 'rtyu', 'tyui', 'yuio', 'uiop',
-      'zxcv', 'xcvb', 'cvbn', 'vbnm'
+      'zxcv', 'xcvb', 'cvbn', 'vbnm',
+      'qaz', 'wsx', 'edc', 'rfv', 'tgb', 'yhn', 'ujm'
     ]
     if (keyboardWalks.some(walk => alphaPart.includes(walk))) {
       return { valid: false, message: notExistMsg }
     }
 
-    // 5. Zero vowels in username of length >= 5 (e.g. dthssthrs, bcdfgh, qwrtyp)
+    // 5. Zero vowels in username of length >= 4 (e.g. bcdf, qwrtyp)
     const vowels = new Set(['a', 'e', 'i', 'o', 'u'])
     const vowelCount = [...alphaPart].filter(c => vowels.has(c)).length
-    if (alphaPart.length >= 5 && vowelCount === 0) {
+    if (alphaPart.length >= 4 && vowelCount === 0) {
       return { valid: false, message: notExistMsg }
     }
 
-    // 6. Extreme consonant clusters (5+ consonants in a row, e.g. dthssth, qwrtyps)
-    if (/[bcdfghjklmnpqrstvwxyz]{5,}/.test(alphaPart)) {
+    // 6. Consonant clusters (4+ consonants in a row, e.g. fhqw, zxcv)
+    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(alphaPart)) {
+      return { valid: false, message: notExistMsg }
+    }
+
+    // 7. Vowel clusters (4+ vowels in a row, e.g. uahui, aeiou)
+    if (/[aeiou]{4,}/.test(alphaPart)) {
+      return { valid: false, message: notExistMsg }
+    }
+
+    // 8. Unnatural letter sequences that never occur in English/Indian names
+    const unnaturalPairs = [
+      'qw', 'qe', 'qr', 'qt', 'qy', 'qp', 'qs', 'qd', 'qf', 'qg', 'qh', 'qj', 'qk', 'ql', 'qz', 'qx', 'qc', 'qv', 'qb', 'qn', 'qm',
+      'wq', 'fq', 'hq', 'gq', 'jq', 'kq', 'vq', 'xq', 'zq',
+      'fh', 'hx', 'vx', 'wx', 'zx', 'xj', 'xk', 'xv', 'xz',
+      'qq', 'jj', 'vv', 'ww', 'yy',
+      'bx', 'dx', 'fx', 'gx', 'jx', 'lx', 'mx', 'px',
+      'cf', 'cg', 'cj', 'cv', 'cw',
+      'bf', 'bg', 'bk', 'bm', 'bp', 'bv', 'bw', 'bz'
+    ]
+    const tokens = alphaPart.split(/[._0-9-]+/).filter(Boolean)
+    if (tokens.some(tok => unnaturalPairs.some(p => tok.includes(p)))) {
       return { valid: false, message: notExistMsg }
     }
 
@@ -845,15 +866,21 @@ export default function AuthPortal({ onLogin }) {
                             setRegEmail(e.target.value)
                             setRegError('')
                           }}
-                          onBlur={() => {
+                          onBlur={async () => {
                             const clean = (regEmail || '').trim().toLowerCase()
-                            if (clean && clean.includes('@')) {
+                            if (!clean) return
+                            if (clean.includes('@')) {
                               const existing = findUserAccount(clean)
                               if (existing) {
                                 setRegError(
                                   `Alert: This email (${clean}) is already registered with ${existing.department || 'an organization'}. Please switch to the "Sign In" tab to log in with your password.`
                                 )
+                                return
                               }
+                            }
+                            const check = await verifyEmailWithServer(clean)
+                            if (!check.valid) {
+                              setRegError(check.message)
                             }
                           }}
                           required

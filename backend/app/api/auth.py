@@ -47,12 +47,12 @@ async def verify_email_existence(req: EmailVerifyRequest):
             detail=f"The domain '{domain}' is disposable or invalid. Please use an active official email or Gmail."
         )
 
-    # 3. Check for obvious random gibberish usernames (e.g. abcdd, dthssthrs, asdfghj, qwrtyp, etc.)
+    # 3. Check for random gibberish, unnatural letter sequences and keyboard mashing
     alpha_part = "".join(c for c in user_part if c.isalpha())
     vowels = set("aeiou")
     vowel_count = sum(1 for c in alpha_part if c in vowels)
 
-    # Alphabet sequences (e.g. abcdd, abcde, bcdef)
+    # Alphabet sequences (e.g. abcd, bcde, etc.)
     alphabet_sequences = [
         "abcd", "bcde", "cdef", "defg", "efgh", "fghi", "ghij", "hijk",
         "ijkl", "jklm", "klmn", "lmno", "mnop", "nopq", "opqr", "pqrs",
@@ -61,26 +61,47 @@ async def verify_email_existence(req: EmailVerifyRequest):
     ]
     has_alphabet_seq = any(seq in alpha_part for seq in alphabet_sequences)
 
-    # 1. Zero vowels in names of length 5+ (e.g. dthssthrs, bcdfgh)
-    zero_vowels = len(alpha_part) >= 5 and vowel_count == 0
+    # Zero vowels in tokens of length >= 4 (e.g. bcdf, qwrtyp)
+    zero_vowels = len(alpha_part) >= 4 and vowel_count == 0
 
-    # 2. Extreme 5+ consonant cluster (e.g. dthssth, qwrtyps)
-    extreme_consonant_cluster = bool(re.search(r"[bcdfghjklmnpqrstvwxyz]{5,}", alpha_part))
+    # 4+ consecutive consonants (e.g. fhqw, zxcv, dfgh) - natural names never have 4 consonants in a row
+    consonant_cluster = bool(re.search(r"[bcdfghjklmnpqrstvwxyz]{4,}", alpha_part))
 
-    # 3. Keyboard mashing patterns (e.g. asdfgh, zxcvbn)
-    keyboard_walks = ["asdf", "sdfg", "dfgh", "fghj", "ghjk", "hjkl", "qwer", "wert", "erty", "rtyu", "zxcv", "xcvb", "cvbn"]
+    # 4+ consecutive vowels (e.g. uahui, aeiou)
+    vowel_cluster = bool(re.search(r"[aeiou]{4,}", alpha_part))
+
+    # Unnatural bigrams that never appear in genuine English/Indian names or words
+    unnatural_pairs = [
+        "qw", "qe", "qr", "qt", "qy", "qp", "qs", "qd", "qf", "qg", "qh", "qj", "qk", "ql", "qz", "qx", "qc", "qv", "qb", "qn", "qm",
+        "wq", "fq", "hq", "gq", "jq", "kq", "vq", "xq", "zq",
+        "fh", "hx", "vx", "wx", "zx", "xj", "xk", "xv", "xz",
+        "qq", "jj", "vv", "ww", "yy",
+        "bx", "dx", "fx", "gx", "jx", "lx", "mx", "px",
+        "cf", "cg", "cj", "cv", "cw",
+        "bf", "bg", "bk", "bm", "bp", "bv", "bw", "bz"
+    ]
+    tokens = [t for t in re.split(r"[._0-9-]+", alpha_part) if t]
+    has_unnatural_pair = any(any(p in t for p in unnatural_pairs) for t in tokens)
+
+    # Keyboard mashing patterns
+    keyboard_walks = [
+        "asdf", "sdfg", "dfgh", "fghj", "ghjk", "hjkl",
+        "qwer", "wert", "erty", "rtyu", "tyui", "yuio", "uiop",
+        "zxcv", "xcvb", "cvbn", "vbnm",
+        "qaz", "wsx", "edc", "rfv", "tgb", "yhn", "ujm"
+    ]
     is_keyboard_mash = any(walk in alpha_part for walk in keyboard_walks)
 
-    # 4. Dummy test usernames and prefixes
+    # Dummy test usernames and prefixes
     dummy_names = {"test", "testing", "fake", "dummy", "sample", "abc", "abcd", "abcdd", "abcde", "asdf", "qwerty", "demo", "none", "null"}
     is_dummy_exact = user_part in dummy_names
     is_dummy_prefix = bool(re.match(r"^(test|fake|dummy|sample|demo|temp)[0-9]*$", user_part))
     has_repeated_chars = bool(re.search(r"([a-zA-Z])\1{2,}", user_part))
 
-    if zero_vowels or extreme_consonant_cluster or is_keyboard_mash or has_alphabet_seq or is_dummy_exact or is_dummy_prefix or has_repeated_chars:
+    if zero_vowels or consonant_cluster or vowel_cluster or has_unnatural_pair or is_keyboard_mash or has_alphabet_seq or is_dummy_exact or is_dummy_prefix or has_repeated_chars:
         raise HTTPException(
             status_code=404,
-            detail=f"Alert: Gmail/Email '{email_clean}' does not exist. Please enter a real registered email address."
+            detail=f"Alert: Email '{email_clean}' is invalid or does not exist. Random or non-existent email addresses are not permitted."
         )
 
     # 4. Check Domain Validity (Recognized public mail exchangers or live DNS)
