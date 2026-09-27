@@ -576,6 +576,9 @@ export default function AdminPortal({
             <span>Bureau of Indian Standards (BIS) Technical Administration</span>
           </div>
         </div>
+        <div className="max-w-7xl mx-auto mt-2 text-center text-[#9A9A9E] dark:text-[#6B7280]">
+          © 2026 ManakSetu | Independent SIH Prototype | For Reference &amp; Verification Only
+        </div>
       </footer>
 
       {/* ── 6. Modals ── */}

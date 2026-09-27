@@ -965,6 +965,9 @@ export default function AuthPortal({ onLogin }) {
           <span>Smart India Hackathon 2026 • SIH26108: Standards Engine for Tender &amp; Utility</span>
           <span>Bureau of Indian Standards (BIS) • Government of India</span>
         </div>
+        <div className="max-w-6xl mx-auto mt-2 text-center text-[#B0B0B8]">
+          © 2026 ManakSetu | Independent SIH Prototype | For Reference &amp; Verification Only
+        </div>
       </footer>
     </div>
   )
