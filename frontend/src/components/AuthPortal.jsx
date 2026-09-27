@@ -39,6 +39,9 @@ const GOV_DEPARTMENTS = [
 export const USERS_STORAGE_KEY = 'manaksetu_registered_users'
 export const CURRENT_USER_KEY = 'manaksetu_active_user'
 
+// Authorized BIS Directorate Security Passcodes required for Admin registration
+export const VALID_BIS_ADMIN_PASSCODES = ['BIS@ADMIN#2026', 'BIS2026', '7492', 'BIS-ADMIN-HQ']
+
 // Known verified demo officers & admins
 export const REGISTERED_ACCOUNTS = [
   {
@@ -130,7 +133,7 @@ export function inferUserFromEmail(email) {
     department = 'Ministry of Railways / Indian Railways (RDSO)'
   } else if (domain.includes('cpwd') || clean.includes('cpwd')) {
     department = 'Central Public Works Department (CPWD)'
-  } else if (domain.includes('bis') || clean.includes('bis')) {
+  } else if (clean.endsWith('@bis.gov.in') || domain === 'bis.gov.in') {
     department = 'Bureau of Indian Standards (BIS)'
     role = 'admin'
   } else if (domain.includes('gem') || clean.includes('gem')) {
@@ -174,6 +177,7 @@ export default function AuthPortal({ onLogin }) {
   const [regEmail, setRegEmail] = useState('')
   const [regDepartment, setRegDepartment] = useState(GOV_DEPARTMENTS[0])
   const [regRole, setRegRole] = useState('officer') // 'officer' or 'admin'
+  const [adminPasscode, setAdminPasscode] = useState('')
   const [regPassword, setRegPassword] = useState('')
   const [regConfirmPassword, setRegConfirmPassword] = useState('')
 
@@ -403,11 +407,18 @@ export default function AuthPortal({ onLogin }) {
 
     let finalUser = null
     if (found) {
+      // Security guard: Admin privileges strictly require verified @bis.gov.in domain
+      const isBisDomain = cleanEmail.endsWith('@bis.gov.in')
+      const verifiedRole = (found.role === 'admin' && isBisDomain) ? 'admin' : 'officer'
+      const verifiedDept = verifiedRole === 'admin'
+        ? 'Bureau of Indian Standards (BIS)'
+        : (found.department === 'Bureau of Indian Standards (BIS)' ? 'Central Public Works Department (CPWD)' : (found.department || 'Central Public Works Department (CPWD)'))
+
       finalUser = {
         name: found.name,
         email: found.email,
-        department: found.department,
-        role: found.role
+        department: verifiedDept,
+        role: verifiedRole
       }
     } else {
       // If not yet saved in this browser, deduce organization and name from email
@@ -477,6 +488,22 @@ export default function AuthPortal({ onLogin }) {
       return
     }
 
+    // 0b. Strict BIS Admin Security Validation
+    if (regRole === 'admin') {
+      if (!cleanEmail.endsWith('@bis.gov.in')) {
+        setRegError(
+          'Restricted Access: BIS Standards Admin registration is strictly reserved for authorized Bureau of Indian Standards personnel with an official @bis.gov.in email address.'
+        )
+        return
+      }
+      if (!adminPasscode.trim() || !VALID_BIS_ADMIN_PASSCODES.includes(adminPasscode.trim())) {
+        setRegError(
+          'Security Authorization Failed: Invalid BIS Directorate Passcode. Please enter an authorized BIS Security Authorization Key (e.g. BIS@ADMIN#2026).'
+        )
+        return
+      }
+    }
+
     // 1. Password Matching & Strength
     if (regPassword !== regConfirmPassword) {
       setRegError('Alert: Passwords do not match. Please re-enter.')
@@ -529,6 +556,14 @@ export default function AuthPortal({ onLogin }) {
     if (otpCode.trim() !== generatedOtp && otpCode.trim() !== '7492' && otpCode.trim() !== '1234') {
       setRegError('Alert: Invalid OTP code. Please enter the exact code sent to your email.')
       return
+    }
+
+    // Double check BIS Admin Authorization
+    if (regRole === 'admin') {
+      if (!cleanEmail.endsWith('@bis.gov.in') || !VALID_BIS_ADMIN_PASSCODES.includes(adminPasscode.trim())) {
+        setRegError('Security Authorization Failed: Admin registration rejected. Invalid BIS credentials or passcode.')
+        return
+      }
     }
 
     const newUserData = {
@@ -869,6 +904,10 @@ export default function AuthPortal({ onLogin }) {
                           onBlur={async () => {
                             const clean = (regEmail || '').trim().toLowerCase()
                             if (!clean) return
+                            if (regRole === 'admin' && !clean.endsWith('@bis.gov.in')) {
+                              setRegError('Alert: BIS Standards Admin registration is strictly restricted to official @bis.gov.in email addresses.')
+                              return
+                            }
                             if (clean.includes('@')) {
                               const existing = findUserAccount(clean)
                               if (existing) {
@@ -884,7 +923,7 @@ export default function AuthPortal({ onLogin }) {
                             }
                           }}
                           required
-                          placeholder="e.g. yourname@gmail.com / rajesh@cpwd.gov.in"
+                          placeholder={regRole === 'admin' ? 'official.name@bis.gov.in' : 'e.g. yourname@gmail.com / rajesh@cpwd.gov.in'}
                           className={`w-full pl-10 pr-4 py-2.5 bg-[#FAF8F5] border rounded-xl text-xs sm:text-sm font-medium text-[#1C1C1E] placeholder:text-[#9A9A9E] focus:bg-white focus:outline-none transition-all ${
                             regError && regError.toLowerCase().includes('email')
                               ? 'border-rose-500 ring-2 ring-rose-500/10'
@@ -918,12 +957,12 @@ export default function AuthPortal({ onLogin }) {
 
                       {/* Email domain helper chips */}
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
-                        {['@gmail.com', '@cpwd.gov.in', '@bis.gov.in', '@gem.gov.in'].map((domain) => (
+                        {(regRole === 'admin' ? ['@bis.gov.in'] : ['@gmail.com', '@cpwd.gov.in', '@gem.gov.in', '@rdso.nic.in']).map((domain) => (
                           <button
                             key={domain}
                             type="button"
                             onClick={() => {
-                              const prefix = regEmail.split('@')[0] || 'official'
+                              const prefix = regEmail.split('@')[0] || (regRole === 'admin' ? 'director.standards' : 'official')
                               setRegEmail(`${prefix}${domain}`)
                               setRegError('')
                             }}
@@ -935,31 +974,7 @@ export default function AuthPortal({ onLogin }) {
                       </div>
                     </div>
 
-                    {/* 3. Ministry / Department Dropdown (Multi-option) */}
-                    <div>
-                      <label className="text-xs font-semibold text-[#3A3A3C] block mb-1">
-                        Ministry / Department / Organization
-                      </label>
-                      <div className="relative">
-                        <Building2 className="w-4 h-4 absolute left-3.5 top-3 text-[#7A7A7A] pointer-events-none" />
-                        <select
-                          value={regDepartment}
-                          onChange={(e) => setRegDepartment(e.target.value)}
-                          className="w-full pl-10 pr-8 py-2.5 bg-[#FAF8F5] border border-[#E3DDD5] rounded-xl text-xs sm:text-sm font-medium text-[#1C1C1E] focus:bg-white focus:outline-none focus:border-[#1B4965] transition-all appearance-none cursor-pointer"
-                        >
-                          {GOV_DEPARTMENTS.map((dept) => (
-                            <option key={dept} value={dept}>
-                              {dept}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute right-3.5 top-3.5 pointer-events-none text-[#7A7A7A] text-[10px]">
-                          ▼
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 4. Account Role */}
+                    {/* 3. Account Role Selector */}
                     <div>
                       <label className="text-xs font-semibold text-[#3A3A3C] block mb-1">
                         Portal Role
@@ -967,7 +982,10 @@ export default function AuthPortal({ onLogin }) {
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setRegRole('officer')}
+                          onClick={() => {
+                            setRegRole('officer')
+                            setRegError('')
+                          }}
                           className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-center ${
                             regRole === 'officer'
                               ? 'border-[#1B4965] bg-[#1B4965] text-white shadow-xs'
@@ -978,16 +996,97 @@ export default function AuthPortal({ onLogin }) {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setRegRole('admin')}
+                          onClick={() => {
+                            setRegRole('admin')
+                            setRegDepartment('Bureau of Indian Standards (BIS)')
+                            const clean = (regEmail || '').trim().toLowerCase()
+                            if (clean && !clean.endsWith('@bis.gov.in')) {
+                              setRegError('Restricted: BIS Standards Admin registration is strictly reserved for official @bis.gov.in addresses.')
+                            } else {
+                              setRegError('')
+                            }
+                          }}
                           className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-center ${
                             regRole === 'admin'
                               ? 'border-[#E05A00] bg-[#E05A00] text-white shadow-xs'
                               : 'border-[#E3DDD5] bg-[#FAF8F5] text-[#4A4A4A] hover:border-[#C8C0B5]'
                           }`}
                         >
-                          BIS Standards Admin
+                          🏛️ BIS Standards Admin
                         </button>
                       </div>
+                    </div>
+
+                    {/* 3b. BIS Admin Restricted Security Section */}
+                    {regRole === 'admin' && (
+                      <div className="p-3.5 rounded-xl bg-[#FFF6EE] border border-[#FFD4B3] space-y-2.5 animate-in fade-in">
+                        <div className="flex items-start gap-2 text-xs text-[#E05A00]">
+                          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#E05A00]" />
+                          <div>
+                            <span className="font-bold">Restricted BIS Directorate Gateway:</span>
+                            <p className="text-[11px] text-[#7A5A4A] mt-0.5 leading-relaxed">
+                              Administrative registration requires an official <strong className="font-semibold text-[#E05A00]">@bis.gov.in</strong> email and an authorized Directorate Security Passcode. Procurement officers from CPWD, Railways, Defence, GeM, etc. must register as <em>Procurement Officer</em>.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold text-[#E05A00] block mb-1">
+                            BIS Directorate Security Passcode *
+                          </label>
+                          <div className="relative">
+                            <Lock className="w-4 h-4 absolute left-3.5 top-3 text-[#E05A00]" />
+                            <input
+                              type="password"
+                              value={adminPasscode}
+                              onChange={(e) => {
+                                setAdminPasscode(e.target.value)
+                                setRegError('')
+                              }}
+                              required
+                              placeholder="Enter BIS Directorate Passcode (e.g. BIS@ADMIN#2026)"
+                              className="w-full pl-10 pr-4 py-2 bg-white border border-[#FFD4B3] rounded-xl text-xs sm:text-sm font-mono text-[#1C1C1E] placeholder:text-[#B89B84] focus:outline-none focus:border-[#E05A00] focus:ring-1 focus:ring-[#E05A00] transition-all"
+                            />
+                          </div>
+                          <p className="text-[10px] text-[#A04000] mt-1">
+                            🔑 Directorate Security Passcode: <code className="font-mono font-bold bg-[#FFE8D6] px-1 py-0.5 rounded">BIS@ADMIN#2026</code> or <code className="font-mono font-bold bg-[#FFE8D6] px-1 py-0.5 rounded">BIS2026</code>
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 4. Ministry / Department Dropdown (Multi-option or locked to BIS) */}
+                    <div>
+                      <label className="text-xs font-semibold text-[#3A3A3C] block mb-1">
+                        Ministry / Department / Organization
+                      </label>
+                      {regRole === 'admin' ? (
+                        <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-[#FFF0E6] border border-[#FFD4B3] rounded-xl text-xs sm:text-sm font-semibold text-[#E05A00]">
+                          <Building2 className="w-4 h-4 shrink-0 text-[#E05A00]" />
+                          <span className="flex-1">Bureau of Indian Standards (BIS)</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white text-[#E05A00] border border-[#FFD4B3]">
+                            Locked for Admin
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <Building2 className="w-4 h-4 absolute left-3.5 top-3 text-[#7A7A7A] pointer-events-none" />
+                          <select
+                            value={regDepartment}
+                            onChange={(e) => setRegDepartment(e.target.value)}
+                            className="w-full pl-10 pr-8 py-2.5 bg-[#FAF8F5] border border-[#E3DDD5] rounded-xl text-xs sm:text-sm font-medium text-[#1C1C1E] focus:bg-white focus:outline-none focus:border-[#1B4965] transition-all appearance-none cursor-pointer"
+                          >
+                            {GOV_DEPARTMENTS.map((dept) => (
+                              <option key={dept} value={dept}>
+                                {dept}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute right-3.5 top-3.5 pointer-events-none text-[#7A7A7A] text-[10px]">
+                            ▼
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* 5. Password + Strength Meter */}
