@@ -254,79 +254,11 @@ export default function AuthPortal({ onLogin }) {
       return { valid: false, message: notExistMsg }
     }
 
-    // 2. Check for dummy test usernames (abcdd, asdf, test, fake, etc.)
-    const DUMMY_USERNAMES = new Set([
-      'test', 'testing', 'fake', 'dummy', 'sample', 'abc', 'abcd', 'abcdd',
-      'abcde', 'abcdef', 'asdf', 'asdfg', 'asdfgh', 'asdfghj', 'qwerty',
-      'xyz', 'xyz123', 'demo', 'none', 'null', 'temp', 'fakeuser', 'admin123',
-      'testuser', 'user123', 'dthssthrs'
+    // 2. Reject obvious full placeholder emails (test@test.com, fake@fake.com, etc.)
+    const DUMMY_EMAILS = new Set([
+      'test@test.com', 'fake@fake.com', 'dummy@dummy.com', 'admin@admin.com', 'user@user.com'
     ])
-    if (DUMMY_USERNAMES.has(userPart)) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // Check dummy prefixes like test123, fake99, dummy44
-    if (/^(test|fake|dummy|sample|demo|temp)[0-9]*$/.test(userPart)) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // Check for 3+ consecutive repeating characters (e.g. aaaaa, bbbbb)
-    if (/([a-zA-Z0-9])\1{2,}/.test(userPart)) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // 3. Alphabet sequences (e.g. abcdd, bcdef, etc.)
-    const alphaPart = userPart.replace(/[^a-z]/g, '')
-    const alphabetSequences = [
-      'abcd', 'bcde', 'cdef', 'defg', 'efgh', 'fghi', 'ghij', 'hijk',
-      'ijkl', 'jklm', 'klmn', 'lmno', 'mnop', 'nopq', 'opqr', 'pqrs',
-      'qrst', 'rstu', 'stuv', 'tuvw', 'uvwx', 'vwxy', 'wxyz',
-      'dcba', 'edcb', 'fedc', 'gfed', 'hgfe', 'ihgf', 'jihg', 'kjih'
-    ]
-    if (alphabetSequences.some(seq => alphaPart.includes(seq))) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // 4. Keyboard walk patterns
-    const keyboardWalks = [
-      'asdf', 'sdfg', 'dfgh', 'fghj', 'ghjk', 'hjkl',
-      'qwer', 'wert', 'erty', 'rtyu', 'tyui', 'yuio', 'uiop',
-      'zxcv', 'xcvb', 'cvbn', 'vbnm',
-      'qaz', 'wsx', 'edc', 'rfv', 'tgb', 'yhn', 'ujm'
-    ]
-    if (keyboardWalks.some(walk => alphaPart.includes(walk))) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // 5. Zero vowels in username of length >= 4 (e.g. bcdf, qwrtyp)
-    const vowels = new Set(['a', 'e', 'i', 'o', 'u'])
-    const vowelCount = [...alphaPart].filter(c => vowels.has(c)).length
-    if (alphaPart.length >= 4 && vowelCount === 0) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // 6. Consonant clusters (4+ consonants in a row, e.g. fhqw, zxcv)
-    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(alphaPart)) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // 7. Vowel clusters (4+ vowels in a row, e.g. uahui, aeiou)
-    if (/[aeiou]{4,}/.test(alphaPart)) {
-      return { valid: false, message: notExistMsg }
-    }
-
-    // 8. Unnatural letter sequences that never occur in English/Indian names
-    const unnaturalPairs = [
-      'qw', 'qe', 'qr', 'qt', 'qy', 'qp', 'qs', 'qd', 'qf', 'qg', 'qh', 'qj', 'qk', 'ql', 'qz', 'qx', 'qc', 'qv', 'qb', 'qn', 'qm',
-      'wq', 'fq', 'hq', 'gq', 'jq', 'kq', 'vq', 'xq', 'zq',
-      'fh', 'hx', 'vx', 'wx', 'zx', 'xj', 'xk', 'xv', 'xz',
-      'qq', 'jj', 'vv', 'ww', 'yy',
-      'bx', 'dx', 'fx', 'gx', 'jx', 'lx', 'mx', 'px',
-      'cf', 'cg', 'cj', 'cv', 'cw',
-      'bf', 'bg', 'bk', 'bm', 'bp', 'bv', 'bw', 'bz'
-    ]
-    const tokens = alphaPart.split(/[._0-9-]+/).filter(Boolean)
-    if (tokens.some(tok => unnaturalPairs.some(p => tok.includes(p)))) {
+    if (DUMMY_EMAILS.has(clean)) {
       return { valid: false, message: notExistMsg }
     }
 
