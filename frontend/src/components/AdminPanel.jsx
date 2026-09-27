@@ -788,30 +788,30 @@ export default function AdminPanel({
             </div>
           </div>
 
-          {/* Table */}
-          <div className="border border-[#E5DDD1] rounded-2xl overflow-hidden shadow-2xs">
-            <table className="w-full text-left text-xs divide-y divide-[#E5DDD1]">
+          {/* Table Container with Horizontal Scroll Support */}
+          <div className="border border-[#E5DDD1] rounded-2xl overflow-x-auto shadow-2xs scrollbar-thin">
+            <table className="w-full text-left text-xs divide-y divide-[#E5DDD1] min-w-[900px]">
               <thead className="bg-[#F6F1E7] text-[#0F2942] font-bold text-[11px] uppercase tracking-wider">
                 <tr>
-                  <th className="py-3 px-4">{isHindi ? 'मानक कोड' : 'Standard Code'}</th>
-                  <th className="py-3 px-4">{isHindi ? 'शीर्षक / उत्पाद विवरण' : 'Title'}</th>
-                  <th className="py-3 px-4">{isHindi ? 'संगठन डोमेन / क्षेत्र' : 'Organization Domain / Sector'}</th>
-                  <th className="py-3 px-4">{isHindi ? 'स्थिति' : 'Status'}</th>
-                  <th className="py-3 px-4">{isHindi ? 'स्रोत प्रमाणिकता' : 'Source Provenance'}</th>
-                  <th className="py-3 px-4">{isHindi ? 'QCO एवं प्रमाणन' : 'QCO & Certification'}</th>
-                  <th className="py-3 px-4 text-right">{isHindi ? 'कार्रवाई' : 'Actions'}</th>
+                  <th className="py-2.5 px-3.5 whitespace-nowrap">{isHindi ? 'मानक कोड' : 'Standard Code'}</th>
+                  <th className="py-2.5 px-3 min-w-[170px] max-w-[220px]">{isHindi ? 'शीर्षक / विवरण' : 'Title'}</th>
+                  <th className="py-2.5 px-3 min-w-[180px]">{isHindi ? 'संगठन डोमेन / क्षेत्र' : 'Organization Domain / Sector'}</th>
+                  <th className="py-2.5 px-2.5 whitespace-nowrap">{isHindi ? 'स्थिति' : 'Status'}</th>
+                  <th className="py-2.5 px-3 whitespace-nowrap">{isHindi ? 'स्रोत प्रमाणिकता' : 'Source Provenance'}</th>
+                  <th className="py-2.5 px-3 whitespace-nowrap">{isHindi ? 'QCO एवं प्रमाणन' : 'QCO & Certification'}</th>
+                  <th className="py-2.5 px-3.5 text-right whitespace-nowrap">{isHindi ? 'कार्रवाई' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5DDD1] bg-white">
                 {filteredStandards.slice(0, displayLimit).map((std) => (
                   <tr key={std.id} className="hover:bg-[#FAF7F2] transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#1B4965] whitespace-nowrap">
+                    <td className="py-2.5 px-3.5 font-mono font-bold text-[#1B4965] whitespace-nowrap">
                       {std.standard_no}
                     </td>
-                    <td className="py-3 px-4 font-medium text-[#1C1C1E] max-w-xs truncate" title={std.title}>
+                    <td className="py-2.5 px-3 font-medium text-[#1C1C1E] min-w-[170px] max-w-[220px] truncate" title={std.title}>
                       {std.title}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-2.5 px-3">
                       {(() => {
                         // 1. If an organization filter is active, show that organization's domain
                         const isOrgFilter = selectedSector && !['Electrical & Power', 'Civil & Construction', 'PPE & Safety Equipment', 'all'].includes(selectedSector)
@@ -822,13 +822,15 @@ export default function AdminPanel({
 
                         if (orgDomain) {
                           return (
-                            <div className="flex flex-col gap-1 min-w-[200px] max-w-[280px]">
-                              <div className="font-bold text-[#0F2942] flex items-start gap-1.5 leading-snug">
+                            <div className="flex flex-col gap-0.5 min-w-[170px] max-w-[240px]">
+                              <div className="font-bold text-[#0F2942] flex items-center gap-1.5 leading-snug">
                                 <span className="text-sm shrink-0">{orgDomain.icon}</span>
-                                <span className="text-xs">{isHindi ? (orgDomain.domainName_hi || orgDomain.domainName) : orgDomain.domainName}</span>
+                                <span className="text-xs truncate" title={isHindi ? (orgDomain.domainName_hi || orgDomain.domainName) : orgDomain.domainName}>
+                                  {isHindi ? (orgDomain.domainName_hi || orgDomain.domainName) : orgDomain.domainName}
+                                </span>
                               </div>
                               <div className="flex items-center gap-1.5 text-[10px]">
-                                <span className="px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DDD1] font-medium text-[#555]">
+                                <span className="px-1.5 py-0.2 rounded bg-[#FAF7F2] border border-[#E5DDD1] font-medium text-[#555]">
                                   {formatSector(std.sector)}
                                 </span>
                                 <span className="text-[#9A9A9E]">•</span>
@@ -843,30 +845,30 @@ export default function AdminPanel({
                         // 2. If All Standards or Core Sector is selected, show primary sector + all mandating organization badges
                         const matchingOrgs = getAllOrgsForStandard(std.standard_no)
                         return (
-                          <div className="flex flex-col gap-1.5 min-w-[180px] max-w-[280px]">
+                          <div className="flex flex-col gap-1 min-w-[160px] max-w-[240px]">
                             <div className="flex items-center gap-1.5">
-                              <span className="px-2 py-0.5 rounded-md bg-[#FAF7F2] border border-[#E5DDD1] text-[11px] font-bold text-[#1B4965] whitespace-nowrap">
+                              <span className="px-2 py-0.2 rounded-md bg-[#FAF7F2] border border-[#E5DDD1] text-[10.5px] font-bold text-[#1B4965] whitespace-nowrap">
                                 {formatSector(std.sector)}
                               </span>
                             </div>
                             {matchingOrgs.length > 0 && (
                               <div className="flex flex-wrap gap-1 items-center">
-                                {matchingOrgs.slice(0, 3).map((org, i) => (
+                                {matchingOrgs.slice(0, 2).map((org, i) => (
                                   <span
                                     key={i}
                                     title={`${org.shortName}: ${isHindi ? (org.domainName_hi || org.domainName) : org.domainName}`}
-                                    className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-white border border-[#E5DDD1] text-[#333] inline-flex items-center gap-1 shadow-2xs cursor-help hover:border-[#1B4965] hover:text-[#0F2942]"
+                                    className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-white border border-[#E5DDD1] text-[#333] inline-flex items-center gap-0.5 shadow-2xs cursor-help hover:border-[#1B4965] hover:text-[#0F2942]"
                                   >
                                     <span>{org.icon}</span>
                                     <span>{org.shortName}</span>
                                   </span>
                                 ))}
-                                {matchingOrgs.length > 3 && (
+                                {matchingOrgs.length > 2 && (
                                   <span
-                                    title={matchingOrgs.slice(3).map(o => o.shortName).join(', ')}
-                                    className="text-[9px] font-semibold text-[#7A7A7A] font-mono bg-[#FAF7F2] px-1 py-0.5 rounded border border-[#E5DDD1] cursor-help"
+                                    title={matchingOrgs.slice(2).map(o => o.shortName).join(', ')}
+                                    className="text-[9px] font-semibold text-[#7A7A7A] font-mono bg-[#FAF7F2] px-1 py-0.2 rounded border border-[#E5DDD1] cursor-help"
                                   >
-                                    +{matchingOrgs.length - 3} {isHindi ? 'विभाग' : 'orgs'}
+                                    +{matchingOrgs.length - 2} {isHindi ? 'विभाग' : 'orgs'}
                                   </span>
                                 )}
                               </div>
@@ -875,29 +877,29 @@ export default function AdminPanel({
                         )
                       })()}
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    <td className="py-2.5 px-2.5 whitespace-nowrap">
                       {std.status === 'superseded' ? (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
                           {isHindi ? 'प्रतिस्थापित' : 'Superseded'}
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
                           {isHindi ? 'सक्रिय' : 'Active'}
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1.5">
                           {std.source_type === 'GOVERNMENT_GAZETTE' ? (
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F4EFFB] text-[#6B21A8] border border-[#E9D5FF] flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F4EFFB] text-[#6B21A8] border border-[#E9D5FF] flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-[#9333EA]"></span>
-                              {isHindi ? 'भारत का राजपत्र' : 'Gazette of India'}
+                              {isHindi ? 'राजपत्र' : 'Gazette'}
                             </span>
                           ) : (
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0] flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0] flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
-                              {isHindi ? 'बीआईएस आधिकारिक' : 'BIS Official'}
+                              {isHindi ? 'बीआईएस' : 'BIS Official'}
                             </span>
                           )}
                           {(std.official_source_url || std.source_url) && (
@@ -913,34 +915,34 @@ export default function AdminPanel({
                           )}
                         </div>
                         {std.secondary_source_url && (
-                          <span className="text-[10px] text-[#7A7A7A]">
-                            {isHindi ? 'अभिलेखागार सत्यापन: law.resource.org' : 'Archive cross-check: law.resource.org'}
+                          <span className="text-[9.5px] text-[#7A7A7A]">
+                            {isHindi ? 'सत्यापन: law.resource.org' : 'Archive: law.resource.org'}
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       {std.qco_verified ? (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]">
-                          {isHindi ? 'अनिवार्य ISI (सत्यापित)' : 'Mandatory ISI (Verified)'}
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]">
+                          {isHindi ? 'अनिवार्य ISI' : 'Mandatory ISI'}
                         </span>
                       ) : std.qco_applicable ? (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]" title="QCO applies by schedule; statutory Gazette citation pending audit">
-                          {isHindi ? 'सत्यापन लंबित' : 'Verification Pending'}
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]" title="QCO applies by schedule; statutory Gazette citation pending audit">
+                          {isHindi ? 'लंबित' : 'Pending'}
                         </span>
                       ) : (
-                        <span className="text-[#7A7A7A] text-[10px] px-2.5 py-0.5 rounded-full bg-[#FAF7F2] border border-[#E5DDD1] font-semibold">
-                          {isHindi ? 'स्वैच्छिक (डिज़ाइन कोड)' : 'Voluntary (Design Code)'}
+                        <span className="text-[#7A7A7A] text-[10px] px-2 py-0.5 rounded-full bg-[#FAF7F2] border border-[#E5DDD1] font-semibold">
+                          {isHindi ? 'स्वैच्छिक' : 'Voluntary'}
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 px-4 text-right whitespace-nowrap">
+                    <td className="py-2 px-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
                         {/* 1. View / Inspect Details */}
                         <button
                           type="button"
                           onClick={() => onSelectStandard && onSelectStandard(std.standard_no)}
-                          className="px-2.5 py-1 rounded-lg text-xs font-bold text-[#0F2942] bg-white hover:bg-[#F6F1E7] border border-[#E5DDD1] flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                          className="px-2 py-1 rounded-lg text-xs font-bold text-[#0F2942] bg-white hover:bg-[#F6F1E7] border border-[#E5DDD1] flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
                           title={isHindi ? 'मानक विवरण एवं संशोधन देखें' : 'View standard details & amendments'}
                         >
                           <Eye className="w-3.5 h-3.5 text-[#1B4965]" />
@@ -952,7 +954,7 @@ export default function AdminPanel({
                           type="button"
                           disabled={actionLoadingId === std.id}
                           onClick={() => handleToggleStatus(std)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50 shadow-2xs ${
+                          className={`px-2 py-1 rounded-lg text-xs font-bold border flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50 shadow-2xs ${
                             std.status === 'superseded'
                               ? 'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0] hover:bg-[#D1FAE5]'
                               : 'bg-[#FFFBEB] text-[#92400E] border-[#FDE68A] hover:bg-[#FEF3C7]'
@@ -966,8 +968,8 @@ export default function AdminPanel({
                           <ArrowLeftRight className={`w-3.5 h-3.5 ${actionLoadingId === std.id ? 'animate-spin' : ''}`} />
                           <span>
                             {std.status === 'superseded'
-                              ? (isHindi ? 'सक्रिय करें' : 'Activate')
-                              : (isHindi ? 'प्रतिस्थापित करें' : 'Supersede')}
+                              ? (isHindi ? 'सक्रिय' : 'Active')
+                              : (isHindi ? 'प्रतिस्थापित' : 'Supersede')}
                           </span>
                         </button>
 
@@ -976,7 +978,7 @@ export default function AdminPanel({
                           type="button"
                           disabled={actionLoadingId === std.id}
                           onClick={() => handleDeleteStandard(std)}
-                          className="p-1.5 rounded-lg text-rose-600 hover:text-rose-800 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer disabled:opacity-50"
+                          className="p-1 rounded-lg text-rose-600 hover:text-rose-800 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer disabled:opacity-50"
                           title={isHindi ? 'मानक हटाएं' : 'Delete standard'}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
