@@ -441,6 +441,21 @@ export default function AuthPortal({ onLogin }) {
     e.preventDefault()
     setRegError('')
 
+    const cleanEmail = (regEmail || '').trim().toLowerCase()
+    if (!cleanEmail) {
+      setRegError('Please enter your email address.')
+      return
+    }
+
+    // 0. Check if email is already registered
+    const existing = findUserAccount(cleanEmail)
+    if (existing) {
+      setRegError(
+        `Alert: This email (${cleanEmail}) is already registered with ${existing.department || 'an organization'}. Please switch to the "Sign In" tab to log in with your password.`
+      )
+      return
+    }
+
     // 1. Password Matching & Strength
     if (regPassword !== regConfirmPassword) {
       setRegError('Alert: Passwords do not match. Please re-enter.')
@@ -480,6 +495,15 @@ export default function AuthPortal({ onLogin }) {
   const handleVerifyRegisterOtp = (e) => {
     e.preventDefault()
     setRegError('')
+
+    const cleanEmail = (regEmail || '').trim().toLowerCase()
+    const existing = findUserAccount(cleanEmail)
+    if (existing) {
+      setRegError(
+        `Alert: This email (${cleanEmail}) is already registered. Please go to the Sign In tab to log in.`
+      )
+      return
+    }
 
     if (otpCode.trim() !== generatedOtp && otpCode.trim() !== '7492' && otpCode.trim() !== '1234') {
       setRegError('Alert: Invalid OTP code. Please enter the exact code sent to your email.')
@@ -821,6 +845,17 @@ export default function AuthPortal({ onLogin }) {
                             setRegEmail(e.target.value)
                             setRegError('')
                           }}
+                          onBlur={() => {
+                            const clean = (regEmail || '').trim().toLowerCase()
+                            if (clean && clean.includes('@')) {
+                              const existing = findUserAccount(clean)
+                              if (existing) {
+                                setRegError(
+                                  `Alert: This email (${clean}) is already registered with ${existing.department || 'an organization'}. Please switch to the "Sign In" tab to log in with your password.`
+                                )
+                              }
+                            }
+                          }}
                           required
                           placeholder="e.g. yourname@gmail.com / rajesh@cpwd.gov.in"
                           className={`w-full pl-10 pr-4 py-2.5 bg-[#FAF8F5] border rounded-xl text-xs sm:text-sm font-medium text-[#1C1C1E] placeholder:text-[#9A9A9E] focus:bg-white focus:outline-none transition-all ${
@@ -833,9 +868,24 @@ export default function AuthPortal({ onLogin }) {
 
                       {/* Immediate Alert right below email bar */}
                       {regError && regError.toLowerCase().includes('email') && (
-                        <div className="mt-1.5 p-2 rounded-lg bg-rose-50 border border-rose-200 flex items-center gap-1.5 text-xs text-rose-700 font-semibold animate-in fade-in">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                          <span>{regError}</span>
+                        <div className="mt-1.5 p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold animate-in fade-in space-y-1.5">
+                          <div className="flex items-start gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                            <span>{regError}</span>
+                          </div>
+                          {regError.toLowerCase().includes('already registered') && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAuthMode('login')
+                                setLoginEmail(regEmail)
+                                setRegError('')
+                              }}
+                              className="px-2.5 py-1 rounded-md bg-[#1B4965] text-white text-[11px] font-bold hover:bg-[#153a51] transition-colors cursor-pointer flex items-center gap-1"
+                            >
+                              <span>👉 Switch to Sign In with this email</span>
+                            </button>
+                          )}
                         </div>
                       )}
 
