@@ -148,8 +148,49 @@ export function analyzeLocally(rawText, sectorFilter = null, topK = 5) {
   }
 }
 
+export function getStoredCustomStandards() {
+  try {
+    const raw = localStorage.getItem('manaksetu_custom_standards')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch (_) {}
+  return []
+}
+
+export function saveCustomStandardLocally(std) {
+  try {
+    const custom = getStoredCustomStandards()
+    const cleanNo = (std.standard_no || '').trim()
+    const existingIdx = custom.findIndex(s => (s.standard_no || '').trim() === cleanNo || (std.id && s.id === std.id))
+    if (existingIdx >= 0) {
+      custom[existingIdx] = { ...custom[existingIdx], ...std }
+    } else {
+      custom.unshift(std)
+    }
+    localStorage.setItem('manaksetu_custom_standards', JSON.stringify(custom))
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+export function deleteCustomStandardLocally(idOrNo) {
+  try {
+    const custom = getStoredCustomStandards()
+    const clean = String(idOrNo || '').trim()
+    const filtered = custom.filter(s => s.id !== clean && (s.standard_no || '').trim() !== clean)
+    localStorage.setItem('manaksetu_custom_standards', JSON.stringify(filtered))
+  } catch (_) {}
+}
+
 export function getLocalStandards(query = '', sector = '', status = '', limit = 100) {
-  let list = [...standardsData]
+  const custom = getStoredCustomStandards()
+  const customNos = new Set(custom.map(c => (c.standard_no || '').trim()))
+  const base = standardsData.filter(b => !customNos.has((b.standard_no || '').trim()))
+  let list = [...custom, ...base]
+
   if (sector) {
     list = list.filter(s => s.sector && s.sector.toLowerCase().includes(sector.toLowerCase()))
   }
@@ -162,7 +203,7 @@ export function getLocalStandards(query = '', sector = '', status = '', limit = 
       (s.standard_no && s.standard_no.toLowerCase().includes(q)) ||
       (s.title && s.title.toLowerCase().includes(q)) ||
       (s.scope && s.scope.toLowerCase().includes(q)) ||
-      (s.keywords && s.keywords.some(k => k.toLowerCase().includes(q)))
+      (s.keywords && (Array.isArray(s.keywords) ? s.keywords.some(k => k.toLowerCase().includes(q)) : String(s.keywords).toLowerCase().includes(q)))
     )
   }
   return {
@@ -176,8 +217,11 @@ export function getLocalStandardByCode(code) {
   const raw = String(code).trim().toLowerCase()
   const noSpecial = raw.replace(/[\s\-_:/()]/g, '')
 
+  const custom = getStoredCustomStandards()
+  const allStds = [...custom, ...standardsData]
+
   // 1. Exact match
-  let found = standardsData.find(s => s.standard_no && s.standard_no.toLowerCase() === raw)
+  let found = allStds.find(s => s.standard_no && s.standard_no.toLowerCase() === raw)
   if (found) return found
 
   // 2. Normalized alphanumeric match

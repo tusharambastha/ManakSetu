@@ -19,7 +19,12 @@ import {
   ArrowLeftRight
 } from 'lucide-react'
 import { safeFetch } from '../utils/api'
-import { getLocalStandards } from '../utils/localEngine'
+import {
+  getLocalStandards,
+  getStoredCustomStandards,
+  saveCustomStandardLocally,
+  deleteCustomStandardLocally
+} from '../utils/localEngine'
 import { getCuratedStandardNosForOrg } from '../utils/organizationStandards'
 
 export const ADMIN_ORG_FILTERS = [
@@ -83,7 +88,13 @@ export default function AdminPanel({
   // Fetch standards list on mount
   useEffect(() => {
     safeFetch('/api/v1/standards?limit=100')
-      .then((data) => setStandardsList(data?.standards || data?.items || []))
+      .then((data) => {
+        const fetched = data?.standards || data?.items || []
+        const custom = getStoredCustomStandards()
+        const customNos = new Set(custom.map(c => c.standard_no))
+        const merged = [...custom, ...fetched.filter(f => !customNos.has(f.standard_no))]
+        setStandardsList(merged.length > 0 ? merged : getLocalStandards().items)
+      })
       .catch((err) => {
         console.warn('Backend unavailable, using local standards database:', err)
         const local = getLocalStandards()
@@ -96,7 +107,11 @@ export default function AdminPanel({
     setErrorMsg('')
     try {
       const data = await safeFetch('/api/v1/standards?limit=100')
-      setStandardsList(data?.standards || data?.items || [])
+      const fetched = data?.standards || data?.items || []
+      const custom = getStoredCustomStandards()
+      const customNos = new Set(custom.map(c => c.standard_no))
+      const merged = [...custom, ...fetched.filter(f => !customNos.has(f.standard_no))]
+      setStandardsList(merged.length > 0 ? merged : getLocalStandards().items)
       if (onRefreshCatalog) onRefreshCatalog()
       setSuccessMsg(
         isHindi
@@ -127,6 +142,22 @@ export default function AdminPanel({
     if (!window.confirm(confirmMsg)) return
 
     setActionLoadingId(std.id)
+    const updatedStd = { ...std, status: nextStatus, status_current: nextStatus }
+    saveCustomStandardLocally(updatedStd)
+
+    setStandardsList((prev) =>
+      prev.map((item) =>
+        (item.id === std.id || item.standard_no === std.standard_no) ? updatedStd : item
+      )
+    )
+    if (onRefreshCatalog) onRefreshCatalog()
+    setSuccessMsg(
+      isHindi
+        ? `${std.standard_no} की स्थिति अब "${nextStatus === 'active' ? 'सक्रिय' : 'प्रतिस्थापित'}" है!`
+        : `Status of ${std.standard_no} changed to "${nextStatus}" successfully!`
+    )
+    setTimeout(() => setSuccessMsg(''), 4000)
+
     try {
       await safeFetch(`/api/v1/standards/${std.id}`, {
         method: 'PUT',
@@ -136,22 +167,8 @@ export default function AdminPanel({
           status_current: nextStatus
         })
       })
-
-      setStandardsList((prev) =>
-        prev.map((item) =>
-          item.id === std.id ? { ...item, status: nextStatus, status_current: nextStatus } : item
-        )
-      )
-      if (onRefreshCatalog) onRefreshCatalog()
-      setSuccessMsg(
-        isHindi
-          ? `${std.standard_no} की स्थिति अब "${nextStatus === 'active' ? 'सक्रिय' : 'प्रतिस्थापित'}" है!`
-          : `Status of ${std.standard_no} changed to "${nextStatus}" successfully!`
-      )
-      setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to update standard status.')
-      setTimeout(() => setErrorMsg(''), 5000)
+      console.warn('Backend sync failed, updated standard status in local storage:', err)
     } finally {
       setActionLoadingId(null)
     }
@@ -164,22 +181,23 @@ export default function AdminPanel({
     if (!window.confirm(confirmMsg)) return
 
     setActionLoadingId(std.id)
+    deleteCustomStandardLocally(std.id || std.standard_no)
+
+    setStandardsList((prev) => prev.filter((item) => item.id !== std.id && item.standard_no !== std.standard_no))
+    if (onRefreshCatalog) onRefreshCatalog()
+    setSuccessMsg(
+      isHindi
+        ? `${std.standard_no} को सफलतापूर्वक हटा दिया गया!`
+        : `Standard ${std.standard_no} deleted successfully!`
+    )
+    setTimeout(() => setSuccessMsg(''), 4000)
+
     try {
       await safeFetch(`/api/v1/standards/${std.id}`, {
         method: 'DELETE'
       })
-
-      setStandardsList((prev) => prev.filter((item) => item.id !== std.id))
-      if (onRefreshCatalog) onRefreshCatalog()
-      setSuccessMsg(
-        isHindi
-          ? `${std.standard_no} को सफलतापूर्वक हटा दिया गया!`
-          : `Standard ${std.standard_no} deleted successfully!`
-      )
-      setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to delete standard.')
-      setTimeout(() => setErrorMsg(''), 5000)
+      console.warn('Backend sync failed, deleted standard from local storage:', err)
     } finally {
       setActionLoadingId(null)
     }
@@ -218,48 +236,55 @@ export default function AdminPanel({
     setErrorMsg('')
 
     const payload = {
+      id: `custom-is-${Date.now()}`,
       standard_no: form.standard_no.trim(),
       title: form.title.trim(),
       sector: form.sector,
       scope: form.scope.trim(),
       current_version: form.current_version.trim() || form.standard_no.trim(),
       status: form.status,
+      status_verified: true,
+      qco_applicable: !!form.cert_order.trim(),
       superseded_by: form.status === 'superseded' ? form.superseded_by.trim() : null,
       keywords: form.keywords
         .split(',')
         .map((k) => k.trim())
         .filter(Boolean),
-      source_ref: form.source_ref.trim() || null,
+      source_ref: form.source_ref.trim() || 'https://www.services.bis.gov.in/',
       certification: form.cert_scheme !== 'None' ? {
         scheme: form.cert_scheme,
         is_mandatory: true,
-        order_name: form.cert_order.trim() || null,
-        notifying_ministry: form.cert_ministry.trim() || null,
+        order_name: form.cert_order.trim() || 'Quality Control Order (QCO)',
+        notifying_ministry: form.cert_ministry.trim() || 'DPIIT',
         details: 'Statutory verification recorded via ManakSetu Admin Portal.'
       } : null,
       amendments: [],
       related_standards: []
     }
 
+    // 1. Immediately persist to persistent browser standards database (100% offline & GitHub Pages support)
+    saveCustomStandardLocally(payload)
+
+    // 2. Optimistically update table & metrics
+    setStandardsList((prev) => [payload, ...prev.filter(s => s.standard_no !== payload.standard_no)])
+    setSuccessMsg(
+      isHindi
+        ? `${form.standard_no} सफलतापूर्वक पंजीकृत एवं ज्ञानकोष में अनुक्रमित किया गया!`
+        : `Successfully registered and indexed ${form.standard_no} into Knowledge Base!`
+    )
+    setShowAddForm(false)
+    if (onRefreshCatalog) onRefreshCatalog()
+    setTimeout(() => setSuccessMsg(''), 5000)
+
+    // 3. Attempt background sync to backend
     try {
       await safeFetch('/api/v1/standards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-
-      setSuccessMsg(
-        isHindi
-          ? `${form.standard_no} सफलतापूर्वक पंजीकृत एवं अनुक्रमित किया गया!`
-          : `Successfully registered and indexed ${form.standard_no}!`
-      )
-      setShowAddForm(false)
-      // Refresh list
-      const updated = await safeFetch('/api/v1/standards?limit=100')
-      setStandardsList(updated?.standards || updated?.items || [])
-      if (onRefreshCatalog) onRefreshCatalog()
     } catch (err) {
-      setErrorMsg(err.message)
+      console.warn('Backend sync failed, saved standard to persistent local database:', err)
     } finally {
       setLoading(false)
     }
