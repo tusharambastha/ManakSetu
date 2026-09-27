@@ -126,7 +126,7 @@ export default function FaqModal({ language = 'en', onClose }) {
                   {isHindi ? 'अक्सर पूछे जाने वाले प्रश्न (FAQ)' : 'Frequently Asked Questions (FAQ)'}
                 </h2>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EBF3FA] dark:bg-[#243444] text-[#1B4965] dark:text-sky-300 border border-[#BFDBFE] dark:border-sky-800">
-                  v2.4.0
+                  v1.0.0
                 </span>
               </div>
               <p className="text-xs text-[#7A7A7A] dark:text-[#9A9A9E]">

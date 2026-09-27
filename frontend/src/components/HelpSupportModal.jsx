@@ -46,7 +46,7 @@ export default function HelpSupportModal({ language = 'en', user, onClose }) {
     // Open user's native email client with pre-filled subject and body addressed to manaksetu.in@gmail.com
     const subjectLine = encodeURIComponent(`[ManakSetu Support] ${formData.subject || 'Support Request'}`)
     const bodyContent = encodeURIComponent(
-      `Officer Name: ${user?.name || 'Authorized Officer'}\nDepartment: ${user?.department || 'Public Procurement'}\nCategory: ${formData.category}\n\nMessage:\n${formData.message}\n\n---\nSent via ManakSetu Helpdesk Portal v2.4.0`
+      `Officer Name: ${user?.name || 'Authorized Officer'}\nDepartment: ${user?.department || 'Public Procurement'}\nCategory: ${formData.category}\n\nMessage:\n${formData.message}\n\n---\nSent via ManakSetu Helpdesk Portal v1.0.0`
     )
     window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subjectLine}&body=${bodyContent}`
     setSentSuccess(true)
@@ -259,7 +259,7 @@ export default function HelpSupportModal({ language = 'en', user, onClose }) {
 
         {/* Footer */}
         <div className="px-6 py-3 bg-[#FAF7F2] dark:bg-[#16212B] border-t border-[#E3DDD5] dark:border-[#2E3F4F] flex items-center justify-between text-[11px] text-[#7A7A7A] dark:text-[#9A9A9E] shrink-0">
-          <span>ManakSetu Procurement Assistance System · v2.4.0</span>
+          <span>ManakSetu Procurement Assistance System · v1.0.0</span>
           <span className="font-mono text-[#0F2942] dark:text-sky-400 font-semibold">{SUPPORT_EMAIL}</span>
         </div>
       </div>

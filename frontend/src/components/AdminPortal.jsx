@@ -552,7 +552,7 @@ export default function AdminPortal({
           {/* ManakSetu Version & Support Footer */}
           <div className="border-t border-[#E3DDD5] dark:border-[#2E3F4F] px-5 py-3.5 text-center bg-[#FAF7F2] dark:bg-[#14202C]">
             <p className="text-[11px] font-bold text-[#0F2942] dark:text-[#E2E8F0] font-mono">
-              ManakSetu v2.4.0
+              ManakSetu v1.0.0
             </p>
             <p className="text-[10px] text-[#7A7A7A] dark:text-[#9A9A9E] mt-0.5">
               {language === 'hi' ? 'राष्ट्रीय मानक अनुपालन पोर्टल' : 'National Standards Compliance Shield'}
