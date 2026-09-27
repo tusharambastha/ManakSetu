@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Upload,
   FileText,
@@ -17,6 +17,7 @@ import {
   Shield
 } from 'lucide-react'
 import { t } from '../utils/translations'
+import { getTaxonomyForOrg, getSectorForDomain } from '../utils/organizationStandards'
 
 // Maps the iconType string from benchmark config → Lucide icon component
 const ICON_MAP = {
@@ -88,6 +89,8 @@ export default function AnalysisWorkspace({
   const [topK, setTopK] = useState(5)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [dragActive, setDragActive] = useState(false)
+  const isHindi = language === 'hi'
+  const taxonomy = useMemo(() => getTaxonomyForOrg(userDepartment), [userDepartment])
 
   useEffect(() => {
     if (initialQuery) {
@@ -349,10 +352,16 @@ export default function AnalysisWorkspace({
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition-colors"
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>{t('filter_by_sector', language)}</span>
+              <span>
+                {userDepartment
+                  ? isHindi
+                    ? `${taxonomy.shortName} डोमेन / क्षेत्र फ़िल्टर`
+                    : `Filter by ${taxonomy.shortName} Domain (Optional)`
+                  : t('filter_by_sector', language)}
+              </span>
               <ChevronDown className={`w-3 h-3 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
             </button>
 
@@ -380,17 +389,48 @@ export default function AnalysisWorkspace({
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
                 <label className="font-bold text-slate-700 block mb-1">
-                  {t('filter_by_sector', language)}
+                  {userDepartment
+                    ? isHindi
+                      ? `${taxonomy.shortName} तकनीकी डोमेन / क्षेत्र`
+                      : `${taxonomy.shortName} Procurement Domain / Sector`
+                    : t('filter_by_sector', language)}
                 </label>
                 <select
                   value={sector}
                   onChange={(e) => setSector(e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800"
+                  className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800 cursor-pointer"
                 >
-                  <option value="">{t('all_sectors', language)}</option>
-                  <option value="PPE & Safety Equipment">PPE & Safety Equipment</option>
-                  <option value="Electrical & Power">Electrical & Power</option>
-                  <option value="Civil & Construction">Civil & Construction</option>
+                  {userDepartment ? (
+                    <>
+                      <option value="">
+                        {isHindi
+                          ? `सभी ${taxonomy.shortName} डोमेन (All Domains)`
+                          : `All ${taxonomy.shortName} Sectors & Domains`}
+                      </option>
+                      {taxonomy.domains.map((dom) => (
+                        <option key={dom.id} value={getSectorForDomain(dom.name)}>
+                          {taxonomy.icon} {isHindi ? dom.name_hi : dom.name}
+                        </option>
+                      ))}
+                      <option disabled>────────────────────────</option>
+                      <option value="Electrical & Power">
+                        ⚡ {isHindi ? 'इलेक्ट्रिकल एवं पावर (सामान्य)' : 'Electrical & Power (General)'}
+                      </option>
+                      <option value="Civil & Construction">
+                        🏗️ {isHindi ? 'सिविल एवं निर्माण (सामान्य)' : 'Civil & Construction (General)'}
+                      </option>
+                      <option value="PPE & Safety Equipment">
+                        🦺 {isHindi ? 'पीपीई एवं सुरक्षा उपकरण (सामान्य)' : 'PPE & Safety Equipment (General)'}
+                      </option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="">{t('all_sectors', language)}</option>
+                      <option value="Electrical & Power">⚡ Electrical & Power</option>
+                      <option value="Civil & Construction">🏗️ Civil & Construction</option>
+                      <option value="PPE & Safety Equipment">🦺 PPE & Safety Equipment</option>
+                    </>
+                  )}
                 </select>
               </div>
 

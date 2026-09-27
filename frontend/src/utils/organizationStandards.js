@@ -497,3 +497,57 @@ export function getOrgTagForStandard(standardNo, department) {
   }
   return null
 }
+
+/**
+ * Maps a domain name or keyword to primary technical sector (Electrical & Power / Civil & Construction / PPE & Safety Equipment)
+ */
+export function getSectorForDomain(domainNameOrId) {
+  if (!domainNameOrId) return ''
+  const lower = domainNameOrId.toLowerCase()
+  if (
+    lower.includes('cable') ||
+    lower.includes('wire') ||
+    lower.includes('switchgear') ||
+    lower.includes('transformer') ||
+    lower.includes('meter') ||
+    lower.includes('earthing') ||
+    lower.includes('electrical') ||
+    lower.includes('lighting')
+  ) {
+    return 'Electrical & Power'
+  }
+  if (
+    lower.includes('steel') ||
+    lower.includes('cement') ||
+    lower.includes('concrete') ||
+    lower.includes('pipe') ||
+    lower.includes('water') ||
+    lower.includes('civil') ||
+    lower.includes('bridge') ||
+    lower.includes('fob') ||
+    lower.includes('pavement') ||
+    lower.includes('drainage') ||
+    lower.includes('housing') ||
+    lower.includes('barrack') ||
+    lower.includes('structure') ||
+    lower.includes('rebar') ||
+    lower.includes('tmt')
+  ) {
+    return 'Civil & Construction'
+  }
+  if (
+    lower.includes('ppe') ||
+    lower.includes('safety') ||
+    lower.includes('helmet') ||
+    lower.includes('shoe') ||
+    lower.includes('boot') ||
+    lower.includes('harness') ||
+    lower.includes('glove') ||
+    lower.includes('respirat') ||
+    lower.includes('warning')
+  ) {
+    return 'PPE & Safety Equipment'
+  }
+  return domainNameOrId
+}
+
