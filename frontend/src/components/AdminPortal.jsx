@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Building,
   HelpCircle,
-  Headphones
+  Headphones,
+  PlayCircle
 } from 'lucide-react'
 import AdminPanel from './AdminPanel'
 import StandardsCatalog from './StandardsCatalog'
@@ -24,6 +25,7 @@ import HistoryView from './HistoryView'
 import JudgePitchView from './JudgePitchView'
 import FaqModal from './FaqModal'
 import HelpSupportModal from './HelpSupportModal'
+import HowItWorksModal from './HowItWorksModal'
 import { t } from '../utils/translations'
 import logoImg from '../assets/manaksetu-logo.jpg'
 
@@ -169,6 +171,7 @@ export default function AdminPortal({
   const [showSignOut, setShowSignOut] = useState(false)
   const [showFaq, setShowFaq] = useState(false)
   const [showHelpSupport, setShowHelpSupport] = useState(false)
+  const [showHowItWorks, setShowHowItWorks] = useState(false)
 
   const profileRef = useRef(null)
   const sidebarRef = useRef(null)
@@ -287,6 +290,14 @@ export default function AdminPortal({
       label: language === 'hi' ? 'मानकसेतु की विशेषताएं' : 'Why ManakSetu Wins',
       action: () => {
         setActiveTab('pitch')
+        closeSidebar()
+      }
+    },
+    {
+      icon: PlayCircle,
+      label: language === 'hi' ? 'यह कैसे काम करता है (How It Works)' : 'How It Works (Live Demo)',
+      action: () => {
+        setShowHowItWorks(true)
         closeSidebar()
       }
     },
@@ -631,6 +642,13 @@ export default function AdminPortal({
           user={user}
           language={language}
           onClose={() => setShowProfile(false)}
+        />
+      )}
+
+      {showHowItWorks && (
+        <HowItWorksModal
+          language={language}
+          onClose={() => setShowHowItWorks(false)}
         />
       )}
 
