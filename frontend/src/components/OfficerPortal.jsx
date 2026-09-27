@@ -24,13 +24,17 @@ import {
   BadgeCheck,
   Layers,
   FileSearch,
-  Video
+  Video,
+  HelpCircle,
+  Headphones
 } from 'lucide-react'
 import AnalysisWorkspace from './AnalysisWorkspace'
 import ResultsView from './ResultsView'
 import StandardsCatalog from './StandardsCatalog'
 import HistoryView from './HistoryView'
 import JudgePitchView from './JudgePitchView'
+import FaqModal from './FaqModal'
+import HelpSupportModal from './HelpSupportModal'
 import { t, TRANSLATIONS } from '../utils/translations'
 import logoImg from '../assets/manaksetu-logo.jpg'
 import { safeFetch } from '../utils/api'
@@ -419,6 +423,8 @@ export default function OfficerPortal({
   const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showSignOut, setShowSignOut] = useState(false)
+  const [showFaq, setShowFaq] = useState(false)
+  const [showHelpSupport, setShowHelpSupport] = useState(false)
 
   const profileRef = useRef(null)
   const sidebarRef = useRef(null)
@@ -559,6 +565,22 @@ export default function OfficerPortal({
       label: t('why_setu_wins', language),
       action: () => {
         setActiveTab('pitch')
+        closeSidebar()
+      }
+    },
+    {
+      icon: HelpCircle,
+      label: language === 'hi' ? 'अक्सर पूछे जाने वाले प्रश्न (FAQ)' : 'FAQ & Knowledge Base',
+      action: () => {
+        setShowFaq(true)
+        closeSidebar()
+      }
+    },
+    {
+      icon: Headphones,
+      label: language === 'hi' ? 'सहायता एवं संपर्क (Help & Support)' : 'Help & Support',
+      action: () => {
+        setShowHelpSupport(true)
         closeSidebar()
       }
     },
@@ -813,6 +835,22 @@ export default function OfficerPortal({
               </div>
             </button>
           </div>
+
+          {/* ManakSetu Version & Support Footer */}
+          <div className="border-t border-[#E3DDD5] dark:border-[#2E3F4F] px-5 py-3.5 text-center bg-[#FAF7F2] dark:bg-[#14202C]">
+            <p className="text-[11px] font-bold text-[#0F2942] dark:text-[#E2E8F0] font-mono">
+              ManakSetu v2.4.0
+            </p>
+            <p className="text-[10px] text-[#7A7A7A] dark:text-[#9A9A9E] mt-0.5">
+              {language === 'hi' ? 'राष्ट्रीय मानक अनुपालन पोर्टल' : 'National Standards Compliance Shield'}
+            </p>
+            <a
+              href="mailto:manaksetu.in@gmail.com"
+              className="text-[10.5px] text-[#1B4965] dark:text-sky-400 hover:underline font-mono font-semibold block mt-1"
+            >
+              manaksetu.in@gmail.com
+            </a>
+          </div>
         </aside>
       </div>
 
@@ -882,6 +920,14 @@ export default function OfficerPortal({
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
       {showHowItWorks && <HowItWorksModal language={language} onClose={() => setShowHowItWorks(false)} />}
       {showProfile && <ProfileModal user={user} onClose={() => setShowProfile(false)} />}
+      {showFaq && <FaqModal language={language} onClose={() => setShowFaq(false)} />}
+      {showHelpSupport && (
+        <HelpSupportModal
+          language={language}
+          user={user}
+          onClose={() => setShowHelpSupport(false)}
+        />
+      )}
       {showSignOut && (
         <SignOutConfirmModal
           onCancel={() => setShowSignOut(false)}
