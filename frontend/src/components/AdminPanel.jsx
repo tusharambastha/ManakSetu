@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   PlusCircle,
   CheckCircle2,
@@ -16,7 +16,8 @@ import {
   ExternalLink,
   Eye,
   Trash2,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Building2
 } from 'lucide-react'
 import { safeFetch } from '../utils/api'
 import {
@@ -30,6 +31,7 @@ import {
   getOrgDomainForStandard,
   getAllOrgsForStandard,
   doesStandardMatch,
+  getTaxonomyForOrg,
   ORG_STANDARDS_TAXONOMY
 } from '../utils/organizationStandards'
 
@@ -361,89 +363,238 @@ export default function AdminPanel({
     return sec
   }
 
+  // Calculate live work, mandates, and domain distribution for all 13 government organizations
+  const orgStats = useMemo(() => {
+    const orgFilters = ADMIN_ORG_FILTERS.filter(
+      (f) => f.id !== 'all' && !['elec', 'civil', 'ppe'].includes(f.id)
+    )
+    return orgFilters.map((org) => {
+      const orgStandards = getCuratedStandardNosForOrg(org.value)
+      const matchingStds = standardsList.filter(
+        (s) =>
+          orgStandards.some((no) => doesStandardMatch(no, s.standard_no)) ||
+          (s.sector && s.sector.toLowerCase().includes(org.value.toLowerCase()))
+      )
+      const qcoCount = matchingStds.filter((s) => s.qco_applicable || s.qco_verified).length
+      const verifiedCount = matchingStds.filter((s) => s.status_verified || s.status === 'active').length
+      const tax = getTaxonomyForOrg(org.value)
+      const domainsCount = tax?.domains?.length || 0
+      return {
+        ...org,
+        count: matchingStds.length,
+        qcoCount,
+        verifiedCount,
+        domainsCount
+      }
+    })
+  }, [standardsList])
+
   return (
     <div className="space-y-6">
       {/* 1. Admin Top Metrics Bar (Authoritative Government Source Policy) */}
       {(() => {
-        const totalCount = standardsList.length
-        const verifiedStatusCount = standardsList.filter((s) => s.status_verified).length
-        const qcoMappedCount = standardsList.filter((s) => s.qco_applicable).length
-        const qcoGazetteVerifiedCount = standardsList.filter((s) => s.qco_verified).length
-        const qcoPendingCount = standardsList.filter((s) => s.qco_applicable && !s.qco_verified).length
-        const supersededCount = standardsList.filter((s) => s.status === 'superseded' || s.status_current === 'superseded').length
+        // Resolve active target list: if an organization or technical sector is selected, calculate metrics strictly for that organization!
+        const isOrgSelected = !!selectedSector && selectedSector !== 'all'
+        const activeFilterObj = ADMIN_ORG_FILTERS.find((f) => f.value === selectedSector)
+        
+        let targetList = standardsList
+        if (isOrgSelected) {
+          if (['Electrical & Power', 'Civil & Construction', 'PPE & Safety Equipment'].includes(selectedSector)) {
+            targetList = standardsList.filter((s) => s.sector === selectedSector)
+          } else {
+            const orgStandards = getCuratedStandardNosForOrg(selectedSector)
+            targetList = standardsList.filter(
+              (s) =>
+                orgStandards.some((no) => doesStandardMatch(no, s.standard_no)) ||
+                (s.sector && s.sector.toLowerCase().includes(selectedSector.toLowerCase()))
+            )
+          }
+        }
+
+        const totalCount = targetList.length
+        const verifiedStatusCount = targetList.filter((s) => s.status_verified || s.status === 'active').length
+        const qcoMappedCount = targetList.filter((s) => s.qco_applicable || s.qco_verified).length
+        const qcoGazetteVerifiedCount = targetList.filter((s) => s.qco_verified).length
+        const qcoPendingCount = targetList.filter((s) => s.qco_applicable && !s.qco_verified).length
+        const supersededCount = targetList.filter((s) => s.status === 'superseded' || s.status_current === 'superseded').length
 
         return (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-            <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
-              <span className="text-2xl font-black text-[#0F2942] font-mono">
-                {totalCount}
-              </span>
-              <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
-                {isHindi ? 'कुल मानक' : 'Total Standards'}
-              </h4>
-              <p className="text-[11px] text-[#7A7A7A] font-medium">
-                {isHindi ? 'नॉलेज बेस रिकॉर्ड्स' : 'Knowledge Base records'}
-              </p>
+          <div className="space-y-4">
+            {/* Scope / Context Header */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">{isOrgSelected ? (activeFilterObj?.icon || '🏢') : '🇮🇳'}</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-sm text-[#0F2942]">
+                      {isOrgSelected
+                        ? (isHindi ? (activeFilterObj?.name_hi || activeFilterObj?.name) : (activeFilterObj?.name || selectedSector))
+                        : (isHindi ? 'राष्ट्रीय बीआईएस मानक रजिस्ट्री — समग्र 13 संगठन एवं मंत्रालय' : 'National BIS Standards Registry — All 13 Ministries & Organizations')}
+                    </h3>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EBF3FA] text-[#1B4965] border border-[#BFDBFE]">
+                      {totalCount} {isHindi ? 'सक्रिय मानक' : 'Active Standards'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#7A7A7A]">
+                    {isOrgSelected
+                      ? (isHindi ? 'वर्तमान में चयनित संगठन के वास्तविक कार्य, अधिदेश एवं QCO आंकड़े प्रदर्शित हैं।' : 'Live mandate coverage and statutory QCO figures for the selected organization.')
+                      : (isHindi ? 'भारत सरकार के सभी 13 प्रमुख विभागों एवं मंत्रालयों के मानकों का समेकित राष्ट्रीय दृश्य।' : 'Consolidated national view across all 13 major GoI procuring entities.')}
+                  </p>
+                </div>
+              </div>
+
+              {isOrgSelected && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSector('')
+                    setDisplayLimit(25)
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#1B4965] hover:bg-[#FAF7F2] border border-[#E5DDD1] transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                >
+                  <span>{isHindi ? 'सभी संगठन देखें' : 'View All Organizations'}</span>
+                  <span>✕</span>
+                </button>
+              )}
             </div>
 
-            <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
-              <span className="text-2xl font-black text-emerald-700 font-mono">
-                {verifiedStatusCount}
-              </span>
-              <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
-                {isHindi ? 'मानक स्थिति सत्यापित' : 'Standard Status Verified'}
-              </h4>
-              <p className="text-[11px] text-[#7A7A7A] font-medium">
-                {isHindi ? 'आधिकारिक बीआईएस द्वारा पुष्ट' : 'Official BIS confirmed'}
-              </p>
+            {/* 6 Top Metric Cards (Calculated on Active Organization) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+              <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
+                <span className="text-2xl font-black text-[#0F2942] font-mono">
+                  {totalCount}
+                </span>
+                <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
+                  {isHindi ? 'कुल मानक' : 'Total Standards'}
+                </h4>
+                <p className="text-[11px] text-[#7A7A7A] font-medium">
+                  {isOrgSelected
+                    ? (isHindi ? 'संगठन अधिकृत' : 'Mandated for org')
+                    : (isHindi ? 'नॉलेज बेस रिकॉर्ड्स' : 'Knowledge Base records')}
+                </p>
+              </div>
+
+              <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
+                <span className="text-2xl font-black text-emerald-700 font-mono">
+                  {verifiedStatusCount}
+                </span>
+                <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
+                  {isHindi ? 'सत्यापित सक्रिय' : 'Status Verified'}
+                </h4>
+                <p className="text-[11px] text-[#7A7A7A] font-medium">
+                  {isHindi ? 'आधिकारिक बीआईएस पुष्ट' : 'Official BIS confirmed'}
+                </p>
+              </div>
+
+              <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
+                <span className="text-2xl font-black text-[#1B4965] font-mono">
+                  {qcoMappedCount}
+                </span>
+                <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
+                  {isHindi ? 'QCO-मैप किए गए' : 'QCO-Mapped'}
+                </h4>
+                <p className="text-[11px] text-[#7A7A7A] font-medium">
+                  {isHindi ? 'अनिवार्य विनिर्देश' : 'Mandatory specs'}
+                </p>
+              </div>
+
+              <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
+                <span className="text-2xl font-black text-blue-700 font-mono">
+                  {qcoGazetteVerifiedCount}
+                </span>
+                <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
+                  {isHindi ? 'QCO गजट सत्यापित' : 'QCO Gazette Verified'}
+                </h4>
+                <p className="text-[11px] text-[#7A7A7A] font-medium">
+                  {isHindi ? 'प्रत्यक्ष गजट S.O. PDF' : 'Direct Gazette S.O. PDF'}
+                </p>
+              </div>
+
+              <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
+                <span className="text-2xl font-black text-rose-600 font-mono">
+                  {qcoPendingCount}
+                </span>
+                <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
+                  {isHindi ? 'QCO सत्यापन लंबित' : 'Verification Pending'}
+                </h4>
+                <p className="text-[11px] text-[#7A7A7A] font-medium">
+                  {isHindi ? 'गजट लिंक ऑडिट' : 'Gazette link audit'}
+                </p>
+              </div>
+
+              <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
+                <span className="text-2xl font-black text-amber-600 font-mono">
+                  {supersededCount}
+                </span>
+                <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
+                  {isHindi ? 'प्रतिस्थापित मानक' : 'Superseded'}
+                </h4>
+                <p className="text-[11px] text-[#7A7A7A] font-medium">
+                  {isHindi ? 'सक्रिय पर पुनर्निर्देशित' : 'Shield routed to active'}
+                </p>
+              </div>
             </div>
 
-            <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
-              <span className="text-2xl font-black text-[#1B4965] font-mono">
-                {qcoMappedCount}
-              </span>
-              <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
-                {isHindi ? 'QCO-मैप किए गए मानक' : 'QCO-Mapped Standards'}
-              </h4>
-              <p className="text-[11px] text-[#7A7A7A] font-medium">
-                {isHindi ? 'उत्पाद विनिर्देश' : 'Product specifications'}
-              </p>
-            </div>
+            {/* 13 Organizations Live Work & Compliance Matrix */}
+            <div className="bg-white rounded-2xl border border-[#E5DDD1] shadow-xs p-5 space-y-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#E5DDD1]">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-[#1B4965]" />
+                  <h3 className="text-xs font-bold text-[#0F2942] uppercase tracking-wider">
+                    {isHindi
+                      ? 'संगठन-वार कार्य एवं अनुपालन स्थिति (13 सरकारी विभाग एवं मंत्रालय)'
+                      : 'Organization-Wise Live Mandates & Compliance Matrix (13 Public Sector Entities)'}
+                  </h3>
+                </div>
+                <span className="text-[11px] text-[#7A7A7A] font-medium">
+                  {isHindi ? 'किसी भी संगठन पर क्लिक करके उसका विशिष्ट कार्य एवं आंकड़े देखें' : 'Click any organization to filter live metrics & registry'}
+                </span>
+              </div>
 
-            <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
-              <span className="text-2xl font-black text-blue-700 font-mono">
-                {qcoGazetteVerifiedCount}
-              </span>
-              <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
-                {isHindi ? 'QCO गजट सत्यापित' : 'QCO Gazette Verified'}
-              </h4>
-              <p className="text-[11px] text-[#7A7A7A] font-medium">
-                {isHindi ? 'प्रत्यक्ष गजट S.O. पीडीएफ' : 'Direct Gazette S.O. PDF'}
-              </p>
-            </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
+                {orgStats.map((org) => {
+                  const isSelected = selectedSector === org.value
+                  return (
+                    <button
+                      key={org.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSector(isSelected ? '' : org.value)
+                        setDisplayLimit(25)
+                      }}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                        isSelected
+                          ? 'bg-[#0F2942] text-white border-[#0F2942] shadow-sm ring-2 ring-[#0F2942]/20'
+                          : 'bg-[#FAF7F2] hover:bg-[#F2ECE1] text-[#1C1C1E] border-[#E5DDD1] hover:border-[#1B4965]/40 shadow-2xs'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-lg">{org.icon}</span>
+                          <span
+                            className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full ${
+                              isSelected
+                                ? 'bg-white/20 text-white'
+                                : 'bg-white text-[#1B4965] border border-[#E5DDD1]'
+                            }`}
+                          >
+                            {org.count} {isHindi ? 'मानक' : 'IS'}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-xs truncate leading-snug" title={isHindi ? org.name_hi : org.name}>
+                          {isHindi ? org.name_hi : org.shortName}
+                        </h4>
+                      </div>
 
-            <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
-              <span className="text-2xl font-black text-rose-600 font-mono">
-                {qcoPendingCount}
-              </span>
-              <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
-                {isHindi ? 'QCO सत्यापन लंबित' : 'QCO Verification Pending'}
-              </h4>
-              <p className="text-[11px] text-[#7A7A7A] font-medium">
-                {isHindi ? 'गजट लिंक ऑडिट लंबित' : 'Gazette link pending audit'}
-              </p>
-            </div>
-
-            <div className="p-4 bg-white rounded-2xl border border-[#E5DDD1] shadow-2xs transition-all hover:border-[#1B4965]/40">
-              <span className="text-2xl font-black text-amber-600 font-mono">
-                {supersededCount}
-              </span>
-              <h4 className="text-xs font-bold text-[#1C1C1E] mt-1">
-                {isHindi ? 'प्रतिस्थापित मानक' : 'Superseded Standards'}
-              </h4>
-              <p className="text-[11px] text-[#7A7A7A] font-medium">
-                {isHindi ? 'शील्ड सक्रिय पर पुनर्निर्देशित' : 'Shield routed to active'}
-              </p>
+                      <div className="mt-2.5 pt-1.5 border-t border-current/10 flex items-center justify-between text-[10px] opacity-90">
+                        <span className="font-semibold">{org.qcoCount} QCO</span>
+                        <span>•</span>
+                        <span>{org.domainsCount} {isHindi ? 'डोमेन' : 'Domains'}</span>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
         )
