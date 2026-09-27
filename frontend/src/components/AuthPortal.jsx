@@ -1187,22 +1187,6 @@ export default function AuthPortal({ onLogin }) {
                       </p>
                     </div>
 
-                    {/* Instant verification code helper so user never gets stuck */}
-                    {generatedOtp && (
-                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <KeyRound className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <div>
-                            <span className="font-bold text-emerald-800">Your Verification Code (OTP):</span>
-                            <p className="text-[10px] text-emerald-700">Dispatched to your email &amp; shown here for instant testing</p>
-                          </div>
-                        </div>
-                        <span className="font-mono font-bold text-base bg-white px-2.5 py-1 rounded-lg border border-emerald-300 text-emerald-900 tracking-widest shadow-xs">
-                          {generatedOtp}
-                        </span>
-                      </div>
-                    )}
-
                     {regError && (
                       <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-xs text-rose-700 font-medium">
                         <AlertCircle className="w-4 h-4 shrink-0" />
