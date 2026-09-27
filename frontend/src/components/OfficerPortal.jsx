@@ -33,6 +33,8 @@ import HistoryView from './HistoryView'
 import JudgePitchView from './JudgePitchView'
 import { t, TRANSLATIONS } from '../utils/translations'
 import logoImg from '../assets/manaksetu-logo.jpg'
+import { safeFetch } from '../utils/api'
+import { getOrgBenchmarks } from '../utils/localEngine'
 
 // ─── Dark Mode helpers ────────────────────────────────────────────────────────
 function getInitialDark() {
@@ -425,6 +427,31 @@ export default function OfficerPortal({
   const [dark, setDark] = useState(getInitialDark)
   const [reanalyzeQuery, setReanalyzeQuery] = useState('')
 
+  // ── Organization-specific benchmark scenarios ──────────────────────────────
+  // Pre-seeded from local fallback immediately so cards render without delay.
+  // Backend fetch replaces them instantly if available.
+  const [orgBenchmarks, setOrgBenchmarks] = useState(() => {
+    return getOrgBenchmarks(user?.department || '')
+  })
+
+  useEffect(() => {
+    // Re-seed local benchmarks whenever user changes (e.g. different login)
+    setOrgBenchmarks(getOrgBenchmarks(user?.department || ''))
+
+    // Try to fetch from backend for authoritative org resolution
+    if (!user?.department) return
+    const encoded = encodeURIComponent(user.department)
+    safeFetch(`/api/v1/benchmarks?organization=${encoded}`)
+      .then((data) => {
+        if (data && Array.isArray(data.benchmarks) && data.benchmarks.length > 0) {
+          setOrgBenchmarks(data.benchmarks)
+        }
+      })
+      .catch(() => {
+        // Backend unavailable — local fallback already set above
+      })
+  }, [user?.department])
+
   useEffect(() => {
     const root = document.documentElement
     if (dark) {
@@ -795,6 +822,8 @@ export default function OfficerPortal({
               demoQueries={demoQueries}
               language={language}
               initialQuery={reanalyzeQuery}
+              orgBenchmarks={orgBenchmarks}
+              userDepartment={user?.department || ''}
             />
             {analysisResults && (
               <ResultsView

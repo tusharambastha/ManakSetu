@@ -14,7 +14,7 @@ if str(BASE_DIR) not in sys.path:
 
 from app.config import settings
 from app.database.session import init_db, AsyncSessionLocal
-from app.api import standards, search, health, pipeline, auth
+from app.api import standards, search, health, pipeline, auth, organization_benchmarks
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,6 +56,7 @@ app.include_router(standards.router, prefix="/api/v1")
 app.include_router(search.router, prefix="/api/v1")
 app.include_router(pipeline.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(organization_benchmarks.router, prefix="/api/v1")
 
 # Mount built frontend if available
 FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"

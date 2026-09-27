@@ -12,11 +12,75 @@ import {
   SlidersHorizontal,
   ChevronDown,
   AlertTriangle,
-  ShieldAlert
+  ShieldAlert,
+  Bolt,
+  Shield
 } from 'lucide-react'
 import { t } from '../utils/translations'
 
-export default function AnalysisWorkspace({ onAnalyze, loading, demoQueries, language = 'en', initialQuery = '' }) {
+// Maps the iconType string from benchmark config → Lucide icon component
+const ICON_MAP = {
+  alert: AlertTriangle,
+  hardhat: HardHat,
+  building: Building,
+  shield: ShieldAlert,
+  zap: Zap,
+  bolt: Zap,     // fallback zap for bolt
+  search: Search,
+}
+
+// Icon color classes per iconType
+const ICON_COLOR_MAP = {
+  alert: 'text-amber-600 bg-amber-50 border-amber-300',
+  hardhat: 'text-blue-500 bg-blue-50 border-blue-200',
+  building: 'text-emerald-500 bg-emerald-50 border-emerald-200',
+  shield: 'text-rose-600 bg-rose-50 border-rose-300',
+  zap: 'text-indigo-500 bg-indigo-50 border-indigo-200',
+  bolt: 'text-indigo-500 bg-indigo-50 border-indigo-200',
+  search: 'text-slate-500 bg-slate-50 border-slate-200',
+}
+
+// Default fallback scenarios (identical to existing behavior for unregistered/demo users)
+const DEFAULT_SCENARIOS = [
+  {
+    id: 'cement-amber',
+    iconType: 'alert',
+    title: '53 Grade OPC → IS 269:2015',
+    sectorBadge: 'Deprecation Shield',
+    query: 'Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 for multi-storey prestressed concrete construction works.'
+  },
+  {
+    id: 'helmet',
+    iconType: 'hardhat',
+    title: 'Safety Helmet 440V',
+    sectorBadge: 'PPE Safety',
+    query: 'Supply of heavy-duty industrial safety helmets with electrical insulation up to 440V, chinstrap, harness, and shock absorption for construction site engineers.'
+  },
+  {
+    id: 'tmt',
+    iconType: 'building',
+    title: 'Fe 500D TMT Rebar',
+    sectorBadge: 'Civil',
+    query: 'Supply of high strength deformed steel bars Fe 500D with minimum 16% elongation and seismic ductile detailing for reinforced concrete bridge piers.'
+  },
+  {
+    id: 'compliance-demo',
+    iconType: 'shield',
+    title: 'Compliance Audit Demo',
+    sectorBadge: 'Multi-Issue Scan',
+    query: 'Clause 4: Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 for multi-storey prestressed concrete construction works.\nClause 8: Supply of PVC insulated copper electrical wiring for site installation.\nClause 12: Heavy-duty industrial safety helmets with electrical insulation rating up to 415V.\nClause 16: Supply of industrial electrical equipment with rated operating voltage of 440V.'
+  }
+]
+
+export default function AnalysisWorkspace({
+  onAnalyze,
+  loading,
+  demoQueries,
+  language = 'en',
+  initialQuery = '',
+  orgBenchmarks = null,
+  userDepartment = ''
+}) {
   const [mode, setMode] = useState('text') // 'text' or 'file'
   const [inputText, setInputText] = useState(initialQuery || '')
   const [selectedFile, setSelectedFile] = useState(null)
@@ -32,41 +96,10 @@ export default function AnalysisWorkspace({ onAnalyze, loading, demoQueries, lan
     }
   }, [initialQuery])
 
-  // 4 curated quick scenarios that trigger instant test run
-  const quickScenarios = [
-    {
-      id: 'cement-amber',
-      icon: AlertTriangle,
-      iconColor: 'text-amber-600 bg-amber-50 border-amber-300',
-      title: '53 Grade OPC → IS 269:2015',
-      sectorBadge: 'Deprecation Shield',
-      query: 'Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 for multi-storey prestressed concrete construction works.'
-    },
-    {
-      id: 'helmet',
-      icon: HardHat,
-      iconColor: 'text-blue-500 bg-blue-50 border-blue-200',
-      title: 'Safety Helmet 440V',
-      sectorBadge: 'PPE Safety',
-      query: 'Supply of heavy-duty industrial safety helmets with electrical insulation up to 440V, chinstrap, harness, and shock absorption for construction site engineers.'
-    },
-    {
-      id: 'tmt',
-      icon: Building,
-      iconColor: 'text-emerald-500 bg-emerald-50 border-emerald-200',
-      title: 'Fe 500D TMT Rebar',
-      sectorBadge: 'Civil',
-      query: 'Supply of high strength deformed steel bars Fe 500D with minimum 16% elongation and seismic ductile detailing for reinforced concrete bridge piers.'
-    },
-    {
-      id: 'compliance-demo',
-      icon: ShieldAlert,
-      iconColor: 'text-rose-600 bg-rose-50 border-rose-300',
-      title: 'Compliance Audit Demo',
-      sectorBadge: 'Multi-Issue Scan',
-      query: 'Clause 4: Supply of 53 Grade Ordinary Portland Cement conforming to IS 12269 for multi-storey prestressed concrete construction works.\nClause 8: Supply of PVC insulated copper electrical wiring for site installation.\nClause 12: Heavy-duty industrial safety helmets with electrical insulation rating up to 415V.\nClause 16: Supply of industrial electrical equipment with rated operating voltage of 440V.'
-    }
-  ]
+  // Use org-specific benchmarks if provided, otherwise default scenarios
+  const quickScenarios = (orgBenchmarks && orgBenchmarks.length > 0)
+    ? orgBenchmarks
+    : DEFAULT_SCENARIOS
 
   const handleInstantRun = (scenario) => {
     setInputText(scenario.query)
@@ -140,11 +173,18 @@ export default function AnalysisWorkspace({ onAnalyze, loading, demoQueries, lan
       {/* 1. Instant 1-Click Evaluation Scenarios */}
       <div className="bg-white rounded-2xl border border-[#E5DDD1] p-7 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 font-bold text-[#1C1C1E]">
-            <Sparkles className="w-5 h-5 text-[#E05A00]" />
-            <span className="text-sm sm:text-[15px]">
-              {t('benchmark_title', language)} <span className="font-medium text-[#7A7A7A]">{t('benchmark_subtitle', language)}</span>
-            </span>
+          <div className="flex items-start flex-col gap-0.5">
+            <div className="flex items-center gap-2.5 font-bold text-[#1C1C1E]">
+              <Sparkles className="w-5 h-5 text-[#E05A00]" />
+              <span className="text-sm sm:text-[15px]">
+                {t('benchmark_title', language)} <span className="font-medium text-[#7A7A7A]">{t('benchmark_subtitle', language)}</span>
+              </span>
+            </div>
+            {userDepartment && (
+              <span className="text-[11px] text-[#9A9A9E] font-medium ml-7">
+                Personalized for your organization
+              </span>
+            )}
           </div>
           <span className="text-xs text-[#7A7A7A] font-semibold hidden sm:block">
             {t('instant_runs', language)}
@@ -153,7 +193,9 @@ export default function AnalysisWorkspace({ onAnalyze, loading, demoQueries, lan
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickScenarios.map((sc) => {
-            const Icon = sc.icon
+            const iconType = sc.iconType || 'building'
+            const Icon = ICON_MAP[iconType] || Building
+            const iconColor = ICON_COLOR_MAP[iconType] || ICON_COLOR_MAP.building
             return (
               <div
                 key={sc.id}
@@ -161,7 +203,7 @@ export default function AnalysisWorkspace({ onAnalyze, loading, demoQueries, lan
                 className="group p-5 rounded-xl border border-[#E5DDD1] hover:border-[#1B4965] bg-[#FFFFFF] hover:bg-[#F6F1E7] transition-all cursor-pointer flex flex-col justify-between min-h-[160px] shadow-2xs hover:shadow-sm"
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 ${sc.iconColor}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 ${iconColor}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
