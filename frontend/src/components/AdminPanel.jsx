@@ -20,8 +20,32 @@ import {
 } from 'lucide-react'
 import { safeFetch } from '../utils/api'
 import { getLocalStandards } from '../utils/localEngine'
+import { getCuratedStandardNosForOrg } from '../utils/organizationStandards'
+
+export const ADMIN_ORG_FILTERS = [
+  { id: 'all', value: '', name: 'All Standards', name_hi: 'सभी मानक', icon: '🏛️' },
+  // 13 Government Organizations
+  { id: 'railways', value: 'Ministry of Railways / Indian Railways (RDSO)', shortName: 'Railways (RDSO)', name_hi: 'भारतीय रेलवे', icon: '🚆' },
+  { id: 'cpwd', value: 'Central Public Works Department (CPWD)', shortName: 'CPWD', name_hi: 'सीपीडब्ल्यूडी', icon: '🏛️' },
+  { id: 'defence', value: 'Ministry of Defence (DGQA / MES)', shortName: 'Defence (DGQA/MES)', name_hi: 'रक्षा मंत्रालय', icon: '🛡️' },
+  { id: 'bhel', value: 'Bharat Heavy Electricals Limited (BHEL)', shortName: 'BHEL', name_hi: 'बीएचईएल', icon: '⚡' },
+  { id: 'sail', value: 'Steel Authority of India Limited (SAIL)', shortName: 'SAIL (Steel)', name_hi: 'सेल (SAIL)', icon: '🏭' },
+  { id: 'ntpc', value: 'National Thermal Power Corporation (NTPC)', shortName: 'NTPC (Power)', name_hi: 'एनटीपीसी', icon: '🔥' },
+  { id: 'morth', value: 'Ministry of Road Transport and Highways (MoRTH / NHAI)', shortName: 'MoRTH / NHAI', name_hi: 'सड़क परिवहन', icon: '🛣️' },
+  { id: 'gem', value: 'Government e-Marketplace (GeM)', shortName: 'GeM', name_hi: 'गवर्नमेंट ई-मार्केटप्लेस', icon: '🛒' },
+  { id: 'mohua', value: 'Ministry of Housing and Urban Affairs (MoHUA)', shortName: 'MoHUA (Housing)', name_hi: 'आवासन मंत्रालय', icon: '🏢' },
+  { id: 'cea', value: 'Ministry of Power / Central Electricity Authority (CEA)', shortName: 'Power (CEA)', name_hi: 'विद्युत प्राधिकरण', icon: '🔌' },
+  { id: 'dpiit', value: 'Ministry of Commerce and Industry (DPIIT)', shortName: 'DPIIT (Commerce)', name_hi: 'उद्योग संवर्धन', icon: '📦' },
+  { id: 'statepwd', value: 'State Public Works Department (State PWD)', shortName: 'State PWD', name_hi: 'राज्य पीडब्ल्यूडी', icon: '🏗️' },
+  { id: 'bis', value: 'Bureau of Indian Standards (BIS)', shortName: 'BIS Mandate', name_hi: 'बीआईएस मानक', icon: '🇮🇳' },
+  // Core Technical Divisions
+  { id: 'elec', value: 'Electrical & Power', shortName: 'Electrical', name_hi: 'विद्युत (Electrical)', icon: '⚡' },
+  { id: 'civil', value: 'Civil & Construction', shortName: 'Civil', name_hi: 'सिविल (Civil)', icon: '🏗️' },
+  { id: 'ppe', value: 'PPE & Safety Equipment', shortName: 'PPE Safety', name_hi: 'सुरक्षा उपकरण (PPE)', icon: '🦺' }
+]
 
 export default function AdminPanel({
+  user,
   onRefreshCatalog,
   userRole = 'officer',
   onOpenLogin,
@@ -241,19 +265,63 @@ export default function AdminPanel({
     }
   }
 
+  const getFilterCount = (filterValue) => {
+    if (!filterValue || filterValue === 'all') return standardsList.length
+    if (['Electrical & Power', 'Civil & Construction', 'PPE & Safety Equipment'].includes(filterValue)) {
+      return standardsList.filter((s) => s.sector === filterValue).length
+    }
+    const orgStandards = getCuratedStandardNosForOrg(filterValue)
+    if (orgStandards && orgStandards.length > 0) {
+      return standardsList.filter((s) => orgStandards.includes(s.standard_no) || (s.sector && s.sector.includes(filterValue))).length
+    }
+    return standardsList.filter((s) => s.sector && s.sector.toLowerCase().includes(filterValue.toLowerCase())).length
+  }
+
   const filteredStandards = standardsList.filter((s) => {
+    const q = searchQuery.trim().toLowerCase()
     const matchesSearch =
-      s.standard_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesSector = !selectedSector || s.sector === selectedSector
-    return matchesSearch && matchesSector
+      !q ||
+      (s.standard_no && s.standard_no.toLowerCase().includes(q)) ||
+      (s.title && s.title.toLowerCase().includes(q)) ||
+      (s.keywords && (Array.isArray(s.keywords) ? s.keywords.join(' ') : s.keywords).toLowerCase().includes(q))
+
+    if (!matchesSearch) return false
+    if (!selectedSector || selectedSector === 'all') return true
+
+    // Direct sector match
+    if (['Electrical & Power', 'Civil & Construction', 'PPE & Safety Equipment'].includes(selectedSector)) {
+      return s.sector === selectedSector
+    }
+
+    // Organization standard match
+    const orgStandards = getCuratedStandardNosForOrg(selectedSector)
+    if (orgStandards && orgStandards.includes(s.standard_no)) return true
+
+    // Sector string includes
+    if (s.sector && s.sector.toLowerCase().includes(selectedSector.toLowerCase())) return true
+
+    return false
   })
 
   const formatSector = (sec) => {
+    if (!sec) return ''
+    if (sec.includes('Railways')) return '🚆 Indian Railways (RDSO)'
+    if (sec.includes('CPWD')) return '🏛️ CPWD'
+    if (sec.includes('Defence') || sec.includes('DGQA') || sec.includes('MES')) return '🛡️ Defence (DGQA/MES)'
+    if (sec.includes('BHEL')) return '⚡ BHEL'
+    if (sec.includes('SAIL')) return '🏭 SAIL (Steel)'
+    if (sec.includes('NTPC')) return '🔥 NTPC (Power)'
+    if (sec.includes('NHAI') || sec.includes('MoRTH')) return '🛣️ MoRTH/NHAI'
+    if (sec.includes('GeM')) return '🛒 GeM'
+    if (sec.includes('Housing') || sec.includes('MoHUA')) return '🏢 MoHUA'
+    if (sec.includes('Power / Central') || sec.includes('CEA')) return '🔌 Power (CEA)'
+    if (sec.includes('Commerce') || sec.includes('DPIIT')) return '📦 DPIIT'
+    if (sec.includes('State PWD')) return '🏗️ State PWD'
+    if (sec.includes('Bureau of Indian Standards')) return '🇮🇳 BIS Directorate'
     if (!isHindi) return sec
     if (sec === 'Electrical & Power') return 'विद्युत एवं ऊर्जा'
     if (sec === 'Civil & Construction') return 'सिविल निर्माण'
-    if (sec === 'PPE & Safety Equipment') return 'पीपीई एवं सुरक्षा उपकरण'
+    if (sec === 'PPE & Safety Equipment') return 'पीपीई एवं सुरक्षा'
     return sec
   }
 
@@ -355,7 +423,9 @@ export default function AdminPanel({
               </h2>
               {isAdmin ? (
                 <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F2] text-[#1B4965] border border-[#E5DDD1]">
-                  {isHindi ? 'व्यवस्थापक अधिकृत (डॉ. अनन्या वर्मा)' : 'Admin Authorized (Dr. Ananya Verma)'}
+                  {isHindi
+                    ? `व्यवस्थापक अधिकृत (${user?.name || 'सत्यापित व्यवस्थापक'})`
+                    : `Admin Authorized (${user?.name || 'Authorized BIS Admin'})`}
                 </span>
               ) : (
                 <button
@@ -476,7 +546,7 @@ export default function AdminPanel({
 
                 <div>
                   <label className="font-bold text-[#1C1C1E] block mb-1">
-                    {isHindi ? 'क्षेत्र डोमेन *' : 'Sector Domain *'}
+                    {isHindi ? 'संगठन / क्षेत्र डोमेन *' : 'Organization / Sector Domain *'}
                   </label>
                   <select
                     name="sector"
@@ -484,15 +554,67 @@ export default function AdminPanel({
                     onChange={handleChange}
                     className="w-full p-2.5 bg-white border border-[#E5DDD1] text-[#1C1C1E] rounded-xl text-xs focus:outline-none focus:border-[#1B4965]"
                   >
-                    <option value="PPE & Safety Equipment">
-                      {isHindi ? 'पीपीई एवं सुरक्षा उपकरण (PPE)' : 'PPE & Safety Equipment'}
-                    </option>
-                    <option value="Electrical & Power">
-                      {isHindi ? 'विद्युत एवं ऊर्जा (Electrical)' : 'Electrical & Power'}
-                    </option>
-                    <option value="Civil & Construction">
-                      {isHindi ? 'सिविल एवं निर्माण (Civil)' : 'Civil & Construction'}
-                    </option>
+                    <optgroup label={isHindi ? 'सरकारी संगठन एवं मंत्रालय' : 'Government Organizations & Ministries'}>
+                      <option value="Ministry of Railways / Indian Railways (RDSO)">
+                        🚆 {isHindi ? 'भारतीय रेलवे (RDSO)' : 'Ministry of Railways / Indian Railways (RDSO)'}
+                      </option>
+                      <option value="Central Public Works Department (CPWD)">
+                        🏛️ {isHindi ? 'सीपीडब्ल्यूडी (CPWD)' : 'Central Public Works Department (CPWD)'}
+                      </option>
+                      <option value="Ministry of Defence (DGQA / MES)">
+                        🛡️ {isHindi ? 'रक्षा मंत्रालय (DGQA / MES)' : 'Ministry of Defence (DGQA / MES)'}
+                      </option>
+                      <option value="Bharat Heavy Electricals Limited (BHEL)">
+                        ⚡ {isHindi ? 'बीएचईएल (BHEL)' : 'Bharat Heavy Electricals Limited (BHEL)'}
+                      </option>
+                      <option value="Steel Authority of India Limited (SAIL)">
+                        🏭 {isHindi ? 'सेल (SAIL)' : 'Steel Authority of India Limited (SAIL)'}
+                      </option>
+                      <option value="National Thermal Power Corporation (NTPC)">
+                        🔥 {isHindi ? 'एनटीपीसी (NTPC)' : 'National Thermal Power Corporation (NTPC)'}
+                      </option>
+                      <option value="Ministry of Road Transport and Highways (MoRTH / NHAI)">
+                        🛣️ {isHindi ? 'सड़क परिवहन एवं राजमार्ग (MoRTH / NHAI)' : 'Ministry of Road Transport and Highways (MoRTH / NHAI)'}
+                      </option>
+                      <option value="Government e-Marketplace (GeM)">
+                        🛒 {isHindi ? 'गवर्नमेंट ई-मार्केटप्लेस (GeM)' : 'Government e-Marketplace (GeM)'}
+                      </option>
+                      <option value="Ministry of Housing and Urban Affairs (MoHUA)">
+                        🏢 {isHindi ? 'आवासन एवं शहरी कार्य (MoHUA)' : 'Ministry of Housing and Urban Affairs (MoHUA)'}
+                      </option>
+                      <option value="Ministry of Power / Central Electricity Authority (CEA)">
+                        🔌 {isHindi ? 'विद्युत प्राधिकरण (CEA)' : 'Ministry of Power / Central Electricity Authority (CEA)'}
+                      </option>
+                      <option value="Ministry of Commerce and Industry (DPIIT)">
+                        📦 {isHindi ? 'उद्योग संवर्धन एवं आंतरिक व्यापार (DPIIT)' : 'Ministry of Commerce and Industry (DPIIT)'}
+                      </option>
+                      <option value="State Public Works Department (State PWD)">
+                        🏗️ {isHindi ? 'राज्य पीडब्ल्यूडी (State PWD)' : 'State Public Works Department (State PWD)'}
+                      </option>
+                      <option value="Bureau of Indian Standards (BIS)">
+                        🇮🇳 {isHindi ? 'भारतीय मानक ब्यूरो (BIS मुख्यालय)' : 'Bureau of Indian Standards (BIS Directorate)'}
+                      </option>
+                    </optgroup>
+                    <optgroup label={isHindi ? 'तकनीकी मानक प्रभाग' : 'BIS Technical Divisions'}>
+                      <option value="Electrical & Power">
+                        ⚡ {isHindi ? 'विद्युत एवं ऊर्जा (Electrical & Power)' : 'Electrical & Power'}
+                      </option>
+                      <option value="Civil & Construction">
+                        🏗️ {isHindi ? 'सिविल एवं निर्माण (Civil & Construction)' : 'Civil & Construction'}
+                      </option>
+                      <option value="PPE & Safety Equipment">
+                        🦺 {isHindi ? 'पीपीई एवं सुरक्षा उपकरण (PPE & Safety)' : 'PPE & Safety Equipment'}
+                      </option>
+                      <option value="Mechanical & Rolling Stock">
+                        ⚙️ {isHindi ? 'मैकेनिकल एवं रोलिंग स्टॉक' : 'Mechanical & Rolling Stock'}
+                      </option>
+                      <option value="Electronics & Telecommunications">
+                        📡 {isHindi ? 'इलेक्ट्रॉनिक्स एवं दूरसंचार' : 'Electronics & Telecommunications'}
+                      </option>
+                      <option value="Chemical & Petrochemicals">
+                        🧪 {isHindi ? 'रसायन एवं पेट्रोकेमिकल' : 'Chemical & Petrochemicals'}
+                      </option>
+                    </optgroup>
                   </select>
                 </div>
 
@@ -597,47 +719,34 @@ export default function AdminPanel({
               />
             </div>
 
-            <div className="flex items-center gap-2 text-xs">
-              <button
-                onClick={() => setSelectedSector('')}
-                className={`px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all ${
-                  !selectedSector
-                    ? 'bg-[#0F2942] text-white border border-[#0F2942] shadow-2xs'
-                    : 'bg-[#FAF7F2] text-[#4A4A4A] border border-[#E5DDD1] hover:bg-[#EFE7DA]'
-                }`}
-              >
-                {isHindi ? `सभी (${standardsList.length})` : `All (${standardsList.length})`}
-              </button>
-              <button
-                onClick={() => setSelectedSector('Electrical & Power')}
-                className={`px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all ${
-                  selectedSector === 'Electrical & Power'
-                    ? 'bg-[#0F2942] text-white border border-[#0F2942] shadow-2xs'
-                    : 'bg-[#FAF7F2] text-[#4A4A4A] border border-[#E5DDD1] hover:bg-[#EFE7DA]'
-                }`}
-              >
-                {isHindi ? 'विद्युत (Electrical)' : 'Electrical'}
-              </button>
-              <button
-                onClick={() => setSelectedSector('PPE & Safety Equipment')}
-                className={`px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all ${
-                  selectedSector === 'PPE & Safety Equipment'
-                    ? 'bg-[#0F2942] text-white border border-[#0F2942] shadow-2xs'
-                    : 'bg-[#FAF7F2] text-[#4A4A4A] border border-[#E5DDD1] hover:bg-[#EFE7DA]'
-                }`}
-              >
-                {isHindi ? 'सुरक्षा उपकरण (PPE)' : 'PPE Safety'}
-              </button>
-              <button
-                onClick={() => setSelectedSector('Civil & Construction')}
-                className={`px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all ${
-                  selectedSector === 'Civil & Construction'
-                    ? 'bg-[#0F2942] text-white border border-[#0F2942] shadow-2xs'
-                    : 'bg-[#FAF7F2] text-[#4A4A4A] border border-[#E5DDD1] hover:bg-[#EFE7DA]'
-                }`}
-              >
-                {isHindi ? 'सिविल (Civil)' : 'Civil'}
-              </button>
+            <div className="flex items-center gap-1.5 text-xs overflow-x-auto pb-1.5 scrollbar-thin max-w-full">
+              {ADMIN_ORG_FILTERS.map((f) => {
+                const isSelected = (!selectedSector && f.value === '') || (selectedSector === f.value)
+                const count = getFilterCount(f.value)
+                if (f.value !== '' && count === 0) return null
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setSelectedSector(f.value)}
+                    className={`px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
+                      isSelected
+                        ? 'bg-[#0F2942] text-white border border-[#0F2942] shadow-2xs'
+                        : 'bg-[#FAF7F2] text-[#4A4A4A] border border-[#E5DDD1] hover:bg-[#EFE7DA]'
+                    }`}
+                  >
+                    <span>{f.icon}</span>
+                    <span>{isHindi ? f.name_hi : (f.shortName || f.name)}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-[#E5DDD1] text-[#555]'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 

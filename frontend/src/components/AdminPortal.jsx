@@ -534,6 +534,7 @@ export default function AdminPortal({
         {/* Tab 1: Admin Dashboard & QCO Console */}
         {activeTab === 'dashboard' && (
           <AdminPanel
+            user={user}
             userRole="admin"
             onRefreshCatalog={onRefreshCatalog}
             onSelectStandard={onSelectStandard}
