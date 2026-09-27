@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, ExternalLink, ShieldCheck, Scale, Award, Calendar, BookOpen, AlertTriangle } from 'lucide-react'
 import { safeFetch } from '../utils/api'
+import { getLocalStandardByCode } from '../utils/localEngine'
 
 export default function StandardModal({ standardNo, onClose, onSelectAnother }) {
   const [data, setData] = useState(null)
@@ -12,16 +13,29 @@ export default function StandardModal({ standardNo, onClose, onSelectAnother }) 
     setLoading(true)
     setError(null)
 
-    // Encode standard number for URL path
+    // 1. Immediately look up in verified local knowledge base (0ms instant response)
+    const localRecord = getLocalStandardByCode(standardNo)
+    if (localRecord) {
+      setData(localRecord)
+      setLoading(false)
+    }
+
+    // 2. Also attempt backend fetch to sync any live updates if available
     const encoded = encodeURIComponent(standardNo)
     safeFetch(`/api/v1/standards/code/${encoded}`)
       .then((resData) => {
-        setData(resData)
-        setLoading(false)
+        if (resData) {
+          setData(resData)
+          setLoading(false)
+          setError(null)
+        }
       })
       .catch((err) => {
-        setError(err.message || 'Standard not found in verified database.')
-        setLoading(false)
+        // If we already have the local record, do not show any network error
+        if (!localRecord) {
+          setError(err.message || 'Standard not found in verified database.')
+          setLoading(false)
+        }
       })
   }, [standardNo])
 

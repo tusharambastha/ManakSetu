@@ -171,6 +171,34 @@ export function getLocalStandards(query = '', sector = '', status = '', limit = 
   }
 }
 
+export function getLocalStandardByCode(code) {
+  if (!code) return null
+  const raw = String(code).trim().toLowerCase()
+  const noSpecial = raw.replace(/[\s\-_:/()]/g, '')
+
+  // 1. Exact match
+  let found = standardsData.find(s => s.standard_no && s.standard_no.toLowerCase() === raw)
+  if (found) return found
+
+  // 2. Normalized alphanumeric match
+  found = standardsData.find(s => {
+    const sClean = (s.standard_no || '').toLowerCase().replace(/[\s\-_:/()]/g, '')
+    return sClean === noSpecial
+  })
+  if (found) return found
+
+  // 3. Substring match (e.g. "12269" or "IS 12269" matches "IS 12269:2013")
+  found = standardsData.find(s => {
+    const sClean = (s.standard_no || '').toLowerCase().replace(/[\s\-_:/()]/g, '')
+    return sClean.includes(noSpecial) || noSpecial.includes(sClean)
+  })
+  if (found) return found
+
+  // 4. By id or partial title
+  found = standardsData.find(s => s.id === code || (s.title && s.title.toLowerCase().includes(raw)))
+  return found || null
+}
+
 export const DEFAULT_DEMO_QUERIES = [
   {
     id: "demo-ppe-helmet",
