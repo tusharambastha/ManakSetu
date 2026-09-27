@@ -499,7 +499,7 @@ export default function AuthPortal({ onLogin }) {
     if (regRole === 'admin') {
       if (!adminPasscode.trim() || !VALID_BIS_ADMIN_PASSCODES.includes(adminPasscode.trim())) {
         setRegError(
-          'Security Authorization Failed: Invalid BIS Directorate Passcode. Please enter an authorized BIS Security Authorization Key (e.g. BIS@ADMIN#2026).'
+          'Security Authorization Failed: Invalid BIS Directorate Passcode. Please enter an authorized BIS Security Authorization Key.'
         )
         return
       }
@@ -1036,12 +1036,12 @@ export default function AuthPortal({ onLogin }) {
                                 setRegError('')
                               }}
                               required
-                              placeholder="Enter BIS Directorate Passcode (e.g. BIS@ADMIN#2026)"
+                              placeholder="Enter Directorate Security Passcode"
                               className="w-full pl-10 pr-4 py-2 bg-white border border-[#FFD4B3] rounded-xl text-xs sm:text-sm font-mono text-[#1C1C1E] placeholder:text-[#B89B84] focus:outline-none focus:border-[#E05A00] focus:ring-1 focus:ring-[#E05A00] transition-all"
                             />
                           </div>
-                          <p className="text-[10px] text-[#A04000] mt-1">
-                            🔑 Directorate Security Passcode: <code className="font-mono font-bold bg-[#FFE8D6] px-1 py-0.5 rounded">BIS@ADMIN#2026</code> or <code className="font-mono font-bold bg-[#FFE8D6] px-1 py-0.5 rounded">BIS2026</code>
+                          <p className="text-[10px] text-[#7A5A4A] mt-1">
+                            Confidential security authorization key issued to authorized BIS Central Directorate administrators.
                           </p>
                         </div>
                       </div>
